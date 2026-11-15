@@ -5,6 +5,7 @@ import { usePathname, useRouter } from "next/navigation";
 import type { DateRange } from "react-day-picker";
 import Image from "next/image";
 import { CalendarDays, Check, ChevronDown, Loader2, RotateCcw, Truck } from "lucide-react";
+import { useT } from "@/components/i18n-provider";
 import { Button } from "@/components/ui/button";
 import { Calendar } from "@/components/ui/calendar";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
@@ -43,6 +44,7 @@ export function FilterBar({
   vehicles: { id: string; cls: VehicleClass }[];
   contextLine: string;
 }) {
+  const t = useT();
   const router = useRouter();
   const pathname = usePathname();
   // useTransition keeps the old page on screen (no blank flash) while the server re-renders.
@@ -68,14 +70,14 @@ export function FilterBar({
   const isDefault = filtersToQuery(filters) === "";
   const today = todayIso();
   const periodLabel =
-    filters.from === today && filters.to === today ? `Today · ${fmtRange(today, today)}` : fmtRange(filters.from, filters.to);
+    filters.from === today && filters.to === today ? t("Today · {range}", { range: fmtRange(today, today, t) }) : fmtRange(filters.from, filters.to, t);
   const options = vehicles.filter((v) => filters.classes.includes(v.cls));
 
   return (
-    <Panel aria-label="Filters" className="space-y-4">
+    <Panel aria-label={t("Filters")} className="space-y-4">
       <div className="flex flex-col gap-4 sm:flex-row sm:flex-wrap sm:items-end">
         <div className="space-y-1.5">
-          <p className="text-xs font-medium text-muted-foreground">Period</p>
+          <p className="text-xs font-medium text-muted-foreground">{t("Period")}</p>
           <Popover
             open={open}
             onOpenChange={(o) => {
@@ -103,7 +105,7 @@ export function FilterBar({
                       setOpen(false);
                     }}
                   >
-                    {p.label}
+                    {t(p.label)}
                   </Button>
                 ))}
               </div>
@@ -127,7 +129,7 @@ export function FilterBar({
                 }}
               />
               <p className="border-t px-3 py-2 text-xs text-muted-foreground">
-                {anchor ? "Now pick the end date (same day for a single day)." : `Data available ${fmtRange(DATA_START, DATA_END)}. Click a start date, then an end date.`}
+                {anchor ? t("Now pick the end date (same day for a single day).") : t("Data available {range}. Click a start date, then an end date.", { range: fmtRange(DATA_START, DATA_END, t) })}
               </p>
             </PopoverContent>
           </Popover>
@@ -135,7 +137,7 @@ export function FilterBar({
 
         <div className="space-y-1.5">
           <label htmlFor="vehicle" className="text-xs font-medium text-muted-foreground">
-            Vehicle
+            {t("Vehicle")}
           </label>
           <div className="relative">
             <select
@@ -144,10 +146,10 @@ export function FilterBar({
               onChange={(e) => apply({ ...filters, vehicle: e.target.value || null })}
               className="h-10 w-full appearance-none rounded-lg border bg-card pl-3 pr-9 text-sm transition-colors hover:bg-muted focus-visible:outline-2 focus-visible:outline-ring sm:w-44"
             >
-              <option value="">All vehicles</option>
+              <option value="">{t("All vehicles")}</option>
               {options.map((v) => (
                 <option key={v.id} value={v.id}>
-                  {v.id}
+                  {t(v.id)}
                 </option>
               ))}
             </select>
@@ -159,7 +161,7 @@ export function FilterBar({
       {/* Vehicle classes: each class is a photo tile you can switch on or off (pick 2 or more to compare) */}
       <div className="space-y-1.5">
         <p className="text-xs font-medium text-muted-foreground" id="class-label">
-          Vehicle classes (pick 2 or more to compare)
+          {t("Vehicle classes (pick 2 or more to compare)")}
         </p>
         <div
           role="group"
@@ -199,10 +201,10 @@ export function FilterBar({
                 </span>
                 <span className="flex items-center gap-1.5 text-sm font-semibold">
                   <span className="size-2.5 shrink-0 rounded-full" style={{ background: cfg.color }} aria-hidden />
-                  {cfg.label}
+                  {t(cfg.label)}
                 </span>
                 <span className="num text-[11px] text-muted-foreground">
-                  {cfg.count} vehicles · {cfg.capacityT} t
+                  {t("{n} vehicles · {c} t", { n: cfg.count, c: cfg.capacityT })}
                 </span>
               </button>
             );
@@ -214,9 +216,9 @@ export function FilterBar({
         <p className="min-w-0 flex-1 text-sm text-muted-foreground" aria-live="polite">
           {contextLine}
         </p>
-        {pending && <Loader2 className="size-4 animate-spin text-muted-foreground" aria-label="Updating" />}
+        {pending && <Loader2 className="size-4 animate-spin text-muted-foreground" aria-label={t("Updating")} />}
         <Button variant="ghost" className="h-10 gap-1.5" disabled={isDefault} onClick={() => apply(defaultFilters())}>
-          <RotateCcw /> Reset
+          <RotateCcw /> {t("Reset")}
         </Button>
       </div>
     </Panel>

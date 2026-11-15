@@ -3,6 +3,7 @@
 import { useMemo, useState } from "react";
 import Link from "next/link";
 import { BellRing, ChevronDown, LifeBuoy, Mail, MapPinned, MessageCircle, Phone, Search, ShieldAlert } from "lucide-react";
+import { useT } from "@/components/i18n-provider";
 import { Panel, PanelHeader } from "@/components/ui/panel";
 import { SupportChat } from "@/components/modules/support-chat";
 import { useDebounce } from "@/hooks/use-debounce";
@@ -17,10 +18,11 @@ const GUIDES = [
 ];
 
 export function HelpCenter({ chunks, alerts, serverNow }: { chunks: Chunk[]; alerts: Alert[]; serverNow: number }) {
+  const t = useT();
   const [query, setQuery] = useState("");
   const [chatOpen, setChatOpen] = useState(false);
   const q = useDebounce(query, 250).trim().toLowerCase();
-  const items = useMemo(() => FAQ.filter((f) => !q || `${f.q} ${f.a}`.toLowerCase().includes(q)), [q]);
+  const items = useMemo(() => FAQ.filter((f) => !q || `${t(f.q)} ${t(f.a)} ${f.q} ${f.a}`.toLowerCase().includes(q)), [q, t]);
 
   return (
     <div className="grid gap-4 lg:grid-cols-3">
@@ -33,8 +35,8 @@ export function HelpCenter({ chunks, alerts, serverNow }: { chunks: Chunk[]; ale
                 <Icon className="size-[18px]" aria-hidden />
               </span>
               <span className="min-w-0 sm:mt-3 sm:block">
-                <span className="block text-sm font-semibold group-hover:text-primary">{title}</span>
-                <span className="block text-xs text-muted-foreground">{text}</span>
+                <span className="block text-sm font-semibold group-hover:text-primary">{t(title)}</span>
+                <span className="block text-xs text-muted-foreground">{t(text)}</span>
               </span>
             </Link>
           ))}
@@ -47,20 +49,20 @@ export function HelpCenter({ chunks, alerts, serverNow }: { chunks: Chunk[]; ale
             <input
               value={query}
               onChange={(e) => setQuery(e.target.value)}
-              placeholder="Search help"
-              aria-label="Search help"
+              placeholder={t("Search help")}
+              aria-label={t("Search help")}
               className="h-10 w-full rounded-lg border bg-background pl-9 pr-3 text-sm outline-none placeholder:text-muted-foreground focus-visible:ring-2 focus-visible:ring-primary/30"
             />
           </div>
           {items.length === 0 ? (
             <div className="flex flex-col items-center gap-3 py-8 text-center">
-              <p className="text-sm text-muted-foreground">No answers match &ldquo;{query}&rdquo;.</p>
+              <p className="text-sm text-muted-foreground">{t("No answers match “{query}”.", { query })}</p>
               <button
                 type="button"
                 onClick={() => setChatOpen(true)}
                 className="inline-flex h-10 items-center gap-2 rounded-lg border px-4 text-sm font-medium transition-colors hover:bg-muted"
               >
-                <MessageCircle className="size-4" aria-hidden /> Ask support instead
+                <MessageCircle className="size-4" aria-hidden /> {t("Ask support instead")}
               </button>
             </div>
           ) : (
@@ -68,10 +70,10 @@ export function HelpCenter({ chunks, alerts, serverNow }: { chunks: Chunk[]; ale
               {items.map((f) => (
                 <details key={f.q} className="group py-1">
                   <summary className="flex min-h-11 cursor-pointer list-none items-center gap-3 text-sm font-medium [&::-webkit-details-marker]:hidden">
-                    <span className="flex-1">{f.q}</span>
+                    <span className="flex-1">{t(f.q)}</span>
                     <ChevronDown className="size-4 shrink-0 text-muted-foreground transition-transform group-open:rotate-180" aria-hidden />
                   </summary>
-                  <p className="pb-3 text-sm text-muted-foreground">{f.a}</p>
+                  <p className="pb-3 text-sm text-muted-foreground">{t(f.a)}</p>
                 </details>
               ))}
             </div>
@@ -86,18 +88,18 @@ export function HelpCenter({ chunks, alerts, serverNow }: { chunks: Chunk[]; ale
           onClick={() => setChatOpen(true)}
           className="flex h-12 w-full items-center justify-center gap-2 rounded-xl bg-primary text-sm font-semibold text-primary-foreground transition-opacity hover:opacity-90"
         >
-          <MessageCircle className="size-[18px]" aria-hidden /> Ask support
+          <MessageCircle className="size-[18px]" aria-hidden /> {t("Ask support")}
         </button>
         <a href="tel:+910000000000" className="flex min-h-12 items-center gap-3 rounded-xl border p-3 transition-colors hover:bg-muted/60">
           <span className="flex size-9 items-center justify-center rounded-lg bg-good-bg text-good"><Phone className="size-[18px]" aria-hidden /></span>
-          <span className="text-sm"><span className="block font-medium">Emergency line</span><span className="text-xs text-muted-foreground">Radio channel 4 or desk phone 100</span></span>
+          <span className="text-sm"><span className="block font-medium">{t("Emergency line")}</span><span className="text-xs text-muted-foreground">{t("Radio channel 4 or desk phone 100")}</span></span>
         </a>
         <a href="mailto:support@example.com" className="flex min-h-12 items-center gap-3 rounded-xl border p-3 transition-colors hover:bg-muted/60">
           <span className="flex size-9 items-center justify-center rounded-lg bg-info-bg text-info"><Mail className="size-[18px]" aria-hidden /></span>
-          <span className="text-sm"><span className="block font-medium">Email support</span><span className="text-xs text-muted-foreground">For reports, access and data issues</span></span>
+          <span className="text-sm"><span className="block font-medium">{t("Email support")}</span><span className="text-xs text-muted-foreground">{t("For reports, access and data issues")}</span></span>
         </a>
         <p className="border-t pt-3 text-xs leading-relaxed text-muted-foreground">
-          Heavy Dumper photo: Caterpillar 793D by TZorn (CC BY-SA 3.0, Wikimedia Commons). Satellite imagery &copy; Esri.
+          {t("Heavy Dumper photo: Caterpillar 793D by TZorn (CC BY-SA 3.0, Wikimedia Commons). Satellite imagery © Esri.")}
         </p>
       </Panel>
     </div>

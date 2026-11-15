@@ -1,6 +1,7 @@
 import recordsJson from "@/data/shift-records.json";
 import { CLASS_CONFIG, DIESEL_PRICE_PER_L } from "./constants";
 import type { DashboardFilters } from "./filters";
+import type { TFn } from "./i18n";
 import { fmt0, fmt1, fmtDate, safeDiv } from "./format";
 import type { ShiftId, ShiftRecord, VehicleClass } from "./types";
 
@@ -132,7 +133,7 @@ export interface DashboardData {
 
 const SHIFT_ORDER: ShiftId[] = ["A", "B", "C"];
 
-export function buildDashboard(f: DashboardFilters): DashboardData {
+export function buildDashboard(f: DashboardFilters, t: TFn): DashboardData {
   const rows = filterRecords(f);
 
   const summaries: ClassSummary[] = f.classes.map((cls) => {
@@ -140,7 +141,7 @@ export function buildDashboard(f: DashboardFilters): DashboardData {
     const totals = sumRecords(own);
     return {
       cls,
-      label: CLASS_CONFIG[cls].label,
+      label: t(CLASS_CONFIG[cls].label),
       vehicles: new Set(own.map((r) => r.vehicleId)).size,
       totals,
       derived: derive(totals),
@@ -155,7 +156,7 @@ export function buildDashboard(f: DashboardFilters): DashboardData {
   const trend: DashboardData["trend"] = { payloadT: [], fuelL: [], trips: [], fuelPerTonne: [], fuelPerKm: [] };
   const shiftLabels: string[] = [];
   for (const { d, s } of shiftKeys) {
-    const label = `${fmtDate(d)} · ${s}`;
+    const label = `${t(fmtDate(d))} · ${s}`;
     shiftLabels.push(label);
     const row = (): TrendRow => ({ label });
     const rp = row(), rf = row(), rt = row(), rpt = row(), rpk = row();
@@ -182,7 +183,7 @@ export function buildDashboard(f: DashboardFilters): DashboardData {
     { metric: "Productive hours", key: "productiveH" },
   ];
   const share = shareDefs.map(({ metric, key }) => ({
-    metric,
+    metric: t(metric),
     values: summaries.map((s) => ({ cls: s.cls, label: s.label, value: metricValue(s, key) })),
   }));
 
@@ -227,11 +228,11 @@ export function buildDashboard(f: DashboardFilters): DashboardData {
     share,
     timeSplit,
     vehicles,
-    insights: buildInsights(summaries, vehicles),
+    insights: buildInsights(summaries, vehicles, t),
   };
 }
 
-function buildInsights(summaries: ClassSummary[], vehicles: VehicleRow[]): Insight[] {
+function buildInsights(summaries: ClassSummary[], vehicles: VehicleRow[], t: TFn): Insight[] {
   const out: Insight[] = [];
   if (summaries.length >= 2) {
     const byPayload = [...summaries].sort((a, b) => b.totals.payloadT - a.totals.payloadT);
@@ -240,8 +241,11 @@ function buildInsights(summaries: ClassSummary[], vehicles: VehicleRow[]): Insig
       const gap = hi.totals.payloadT / lo.totals.payloadT - 1;
       out.push({
         tone: "info",
-        title: "Payload gap",
-        body: `${hi.label} moved ${(gap * 100).toFixed(0)}% more payload than ${lo.label} (${fmt0(hi.totals.payloadT)} t vs ${fmt0(lo.totals.payloadT)} t) on ${fmt0(hi.totals.trips)} vs ${fmt0(lo.totals.trips)} trips.`,
+        title: t("Payload gap"),
+        body: t("{hi} moved {gap}% more payload than {lo} ({a} t vs {b} t) on {c} vs {d} trips.", {
+          hi: hi.label, lo: lo.label, gap: (gap * 100).toFixed(0),
+          a: fmt0(hi.totals.payloadT), b: fmt0(lo.totals.payloadT), c: fmt0(hi.totals.trips), d: fmt0(lo.totals.trips),
+        }),
       });
     }
     const byFuel = [...summaries].sort((a, b) => a.derived.fuelPerTonne - b.derived.fuelPerTonne);
@@ -250,16 +254,21 @@ function buildInsights(summaries: ClassSummary[], vehicles: VehicleRow[]): Insig
       const gap = worst.derived.fuelPerTonne / best.derived.fuelPerTonne - 1;
       out.push({
         tone: "bad",
-        title: "Fuel efficiency",
-        body: `${worst.label} burns ${(gap * 100).toFixed(0)}% more fuel per tonne than ${best.label} (${worst.derived.fuelPerTonne.toFixed(2)} vs ${best.derived.fuelPerTonne.toFixed(2)} L/t).`,
+        title: t("Fuel efficiency"),
+        body: t("{worst} burns {gap}% more fuel per tonne than {best} ({a} vs {b} L/t).", {
+          worst: worst.label, best: best.label, gap: (gap * 100).toFixed(0),
+          a: worst.derived.fuelPerTonne.toFixed(2), b: best.derived.fuelPerTonne.toFixed(2),
+        }),
       });
     }
   } else if (summaries.length === 1) {
     const s = summaries[0];
     out.push({
       tone: "info",
-      title: "Single class view",
-      body: `${s.label} moved ${fmt0(s.totals.payloadT)} t on ${fmt0(s.totals.trips)} trips at ${s.derived.fuelPerTonne.toFixed(2)} L/t. Select a second class to compare.`,
+      title: t("Single class view"),
+      body: t("{label} moved {a} t on {b} trips at {c} L/t. Select a second class to compare.", {
+        label: s.label, a: fmt0(s.totals.payloadT), b: fmt0(s.totals.trips), c: s.derived.fuelPerTonne.toFixed(2),
+      }),
     });
   }
 
@@ -268,16 +277,17 @@ function buildInsights(summaries: ClassSummary[], vehicles: VehicleRow[]): Insig
   if (worst) {
     const avg = summaries.find((s) => s.cls === worst.cls)?.derived.fuelPerTonne ?? 0;
     const reasons = [
-      worst.highFuel && avg > 0 ? `fuel/t is ${((worst.fuelPerTonne / avg - 1) * 100).toFixed(0)}% above the class average` : null,
-      worst.lowUtilisation ? `utilisation is only ${fmt1(worst.utilisation * 100)}%` : null,
-    ].filter(Boolean);
+      worst.highFuel && avg > 0 ? t("fuel/t is {n}% above the class average", { n: ((worst.fuelPerTonne / avg - 1) * 100).toFixed(0) }) : null,
+      worst.lowUtilisation ? t("utilisation is only {n}%", { n: fmt1(worst.utilisation * 100) }) : null,
+    ].filter((r): r is string => r !== null);
+    const why = reasons.length === 2 ? t("{a} and {b}", { a: reasons[0], b: reasons[1] }) : reasons[0];
     out.push({
       tone: "bad",
-      title: "Outlier to check",
-      body: `${worst.id}: ${reasons.join(" and ")}. ${flagged.length > 1 ? `${flagged.length - 1} more vehicle(s) flagged below.` : "Only flagged vehicle in this view."}`,
+      title: t("Outlier to check"),
+      body: `${t(worst.id)}: ${why}. ${flagged.length > 1 ? t("{n} more vehicle(s) flagged below.", { n: flagged.length - 1 }) : t("Only flagged vehicle in this view.")}`,
     });
   } else if (vehicles.length) {
-    out.push({ tone: "good", title: "No outliers", body: "Every vehicle is within 12% of its class fuel/t average and above 75% utilisation." });
+    out.push({ tone: "good", title: t("No outliers"), body: t("Every vehicle is within 12% of its class fuel/t average and above 75% utilisation.") });
   }
   return out.slice(0, 3);
 }

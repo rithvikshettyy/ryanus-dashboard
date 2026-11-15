@@ -1,4 +1,5 @@
 import type { LucideIcon } from "lucide-react";
+import { getT } from "@/lib/i18n/server";
 import type { Tone } from "@/lib/table";
 import { cn } from "@/lib/utils";
 
@@ -19,7 +20,8 @@ export interface Stat {
 }
 
 /** Row of KPI cards at the top of a list page: 2 columns on phones, 4 on desktop. */
-export function StatStrip({ stats }: { stats: Stat[] }) {
+export async function StatStrip({ stats }: { stats: Stat[] }) {
+  const t = await getT();
   return (
     <div className="grid grid-cols-2 gap-3 md:gap-4 lg:grid-cols-4">
       {stats.map(({ label, value, hint, icon: Icon, tone = "muted" }) => (
@@ -28,10 +30,10 @@ export function StatStrip({ stats }: { stats: Stat[] }) {
             <span className={cn("flex size-8 shrink-0 items-center justify-center rounded-lg md:size-9", ICON_TONE[tone])}>
               <Icon className="size-4 md:size-[18px]" aria-hidden />
             </span>
-            <p className="min-w-0 text-xs font-medium leading-tight text-muted-foreground md:truncate md:text-sm">{label}</p>
+            <p className="min-w-0 text-xs font-medium leading-tight text-muted-foreground md:truncate md:text-sm">{t(label)}</p>
           </div>
-          <p className="num mt-2.5 text-xl font-semibold tracking-tight md:mt-3 md:text-2xl">{value}</p>
-          {hint && <p className="mt-0.5 text-xs leading-snug text-muted-foreground md:truncate">{hint}</p>}
+          <p className="num mt-2.5 text-xl font-semibold tracking-tight md:mt-3 md:text-2xl">{t(value)}</p>
+          {hint && <p className="mt-0.5 text-xs leading-snug text-muted-foreground md:truncate">{t(hint)}</p>}
         </div>
       ))}
     </div>

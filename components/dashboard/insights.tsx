@@ -1,6 +1,7 @@
 import { AlertTriangle, CheckCircle2, Lightbulb } from "lucide-react";
 import { Panel } from "@/components/ui/panel";
 import type { Insight } from "@/lib/analytics";
+import { getT } from "@/lib/i18n/server";
 import { cn } from "@/lib/utils";
 
 const TONE = {
@@ -9,10 +10,11 @@ const TONE = {
   good: { icon: CheckCircle2, chip: "bg-good-bg text-good", label: "On track" },
 } as const;
 
-export function Insights({ insights }: { insights: Insight[] }) {
+export async function Insights({ insights }: { insights: Insight[] }) {
+  const tr = await getT();
   return (
-    <section aria-label="Highlights">
-      <h2 className="mb-3 text-sm font-semibold text-muted-foreground">Shift highlights</h2>
+    <section aria-label={tr("Highlights")}>
+      <h2 className="mb-3 text-sm font-semibold text-muted-foreground">{tr("Shift highlights")}</h2>
       <div className="grid gap-4 md:grid-cols-3">
         {insights.map((i) => {
           const t = TONE[i.tone];
@@ -23,7 +25,7 @@ export function Insights({ insights }: { insights: Insight[] }) {
               </span>
               <div>
                 <p className="text-sm font-semibold">
-                  {i.title} <span className="sr-only">({t.label})</span>
+                  {i.title} <span className="sr-only">({tr(t.label)})</span>
                 </p>
                 <p className="mt-1 text-sm leading-relaxed text-muted-foreground">{i.body}</p>
               </div>

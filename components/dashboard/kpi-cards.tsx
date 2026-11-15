@@ -3,6 +3,8 @@ import { Panel } from "@/components/ui/panel";
 import { HIGHER_IS_BETTER, metricValue, type ClassSummary, type MetricKey } from "@/lib/analytics";
 import { CLASS_CONFIG } from "@/lib/constants";
 import { fmt0, fmtDelta } from "@/lib/format";
+import { getT } from "@/lib/i18n/server";
+import type { TFn } from "@/lib/i18n";
 import { cn } from "@/lib/utils";
 
 const CARDS: { metricKey: MetricKey; title: string; unit: string; icon: LucideIcon }[] = [
@@ -12,11 +14,12 @@ const CARDS: { metricKey: MetricKey; title: string; unit: string; icon: LucideIc
   { metricKey: "productiveH", title: "Productive hours", unit: "h", icon: Clock },
 ];
 
-export function KpiCards({ summaries }: { summaries: ClassSummary[] }) {
+export async function KpiCards({ summaries }: { summaries: ClassSummary[] }) {
+  const t = await getT();
   return (
-    <section aria-label="Totals" className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
+    <section aria-label={t("Totals")} className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
       {CARDS.map((c) => (
-        <ComparisonCard key={c.metricKey} {...c} summaries={summaries} />
+        <ComparisonCard key={c.metricKey} {...c} summaries={summaries} t={t} />
       ))}
     </section>
   );
@@ -28,7 +31,9 @@ function ComparisonCard({
   unit,
   icon: Icon,
   summaries,
+  t,
 }: {
+  t: TFn;
   metricKey: MetricKey;
   title: string;
   unit: string;
@@ -43,7 +48,7 @@ function ComparisonCard({
   return (
     <Panel hover className="flex flex-col gap-4">
       <div className="flex items-center justify-between">
-        <p className="text-sm text-muted-foreground">{title}</p>
+        <p className="text-sm text-muted-foreground">{t(title)}</p>
         <span className="flex size-9 items-center justify-center rounded-lg border bg-card text-muted-foreground">
           <Icon className="size-[18px]" aria-hidden />
         </span>
@@ -58,7 +63,7 @@ function ComparisonCard({
                 {s.label}
               </span>
               <span className="num text-xl font-semibold tracking-tight">
-                {fmt0(values[i])} <span className="text-xs font-normal text-muted-foreground">{unit}</span>
+                {fmt0(values[i])} <span className="text-xs font-normal text-muted-foreground">{t(unit)}</span>
               </span>
             </div>
             <div className="mt-1.5 h-2 overflow-hidden rounded-full bg-muted">
@@ -88,7 +93,7 @@ function ComparisonCard({
                 )}
               >
                 <Arrow className="size-3.5" aria-hidden />
-                <span className="num">{fmtDelta(delta)}</span>{summaries.length > 2 && <> {s.label}</>} vs {base.label}
+                <span className="num">{fmtDelta(delta)}</span>{summaries.length > 2 && <> {s.label}</>} {t("vs")} {base.label}
               </span>
             );
           })}

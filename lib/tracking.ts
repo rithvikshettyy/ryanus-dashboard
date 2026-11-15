@@ -315,5 +315,8 @@ export function fmtGps(g: { lat: number; lon: number }): string {
 /** Open alert info for a truck, shown as a badge on the list and the map. */
 export interface TruckFlag {
   severity: "critical" | "warning" | "info";
-  label: string; // e.g. "Overspeeding 45 km/h"
+  label: string; // English text, e.g. "Overspeeding 45 km/h". Used for logic (startsWith), never shown directly
+  title: string; // English alert title, translated when shown
+  actual: number | null; // reading, shown next to the title
+  unit: string;
 }

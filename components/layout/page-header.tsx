@@ -1,5 +1,7 @@
 import { currentTime, loadAlerts, SEVERITY_RANK } from "@/lib/alerts";
+import { getT } from "@/lib/i18n/server";
 import { ActiveUsers } from "./active-users";
+import { LanguageSwitcher } from "./language-switcher";
 import { MobileNav } from "./mobile-nav";
 import { NotificationBell } from "./notification-bell";
 import { RefreshButton } from "./refresh-button";
@@ -14,6 +16,7 @@ export async function PageHeader({
   subtitle?: React.ReactNode;
   actions?: React.ReactNode;
 }) {
+  const t = await getT();
   const now = currentTime();
   const open = loadAlerts(now)
     .filter((a) => a.status !== "resolved")
@@ -23,10 +26,11 @@ export async function PageHeader({
     <header className="sticky top-0 z-30 flex min-h-16 items-center gap-3 border-b bg-card/95 px-4 py-3 backdrop-blur md:px-8">
       <MobileNav />
       <div className="min-w-0 flex-1">
-        <h1 className="truncate text-lg font-semibold tracking-tight md:text-2xl">{title}</h1>
-        {subtitle && <p className="truncate text-xs text-muted-foreground md:text-sm">{subtitle}</p>}
+        <h1 className="truncate text-lg font-semibold tracking-tight md:text-2xl">{t(title)}</h1>
+        {subtitle && <p className="truncate text-xs text-muted-foreground md:text-sm">{typeof subtitle === "string" ? t(subtitle) : subtitle}</p>}
       </div>
       {actions}
+      <LanguageSwitcher variant="icon" className="hidden lg:flex" />
       <RefreshButton />
       <ActiveUsers serverNow={now} />
       <NotificationBell alerts={open} serverNow={now} />

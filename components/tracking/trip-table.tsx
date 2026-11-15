@@ -3,6 +3,7 @@
 import { useMemo, useState } from "react";
 import { ArrowDown, ArrowUp, ArrowUpDown, ChevronDown, Download, Filter, PackageSearch, Search } from "lucide-react";
 import { toast } from "sonner";
+import { useT } from "@/components/i18n-provider";
 import { Button } from "@/components/ui/button";
 import { useDebounce } from "@/hooks/use-debounce";
 import { CLASS_CONFIG } from "@/lib/constants";
@@ -34,6 +35,7 @@ export function TripTable({
   selected: string;
   onSelect: (truck: string) => void;
 }) {
+  const tr = useT();
   const [search, setSearch] = useState("");
   const [status, setStatus] = useState<TripStatus | "all">("all");
   const [sort, setSort] = useState<{ key: SortKey; dir: Dir }>({ key: "status", dir: "asc" });
@@ -45,7 +47,7 @@ export function TripTable({
     const sign = sort.dir === "asc" ? 1 : -1;
     return trips
       .filter((t) => status === "all" || t.status === status)
-      .filter((t) => !q || `${t.id} ${t.truck} ${t.material} ${t.from} ${t.to}`.toLowerCase().includes(q))
+      .filter((t) => !q || `${t.id} ${t.truck} ${t.material} ${t.from} ${t.to} ${tr(t.truck)} ${tr(t.material)} ${tr(t.from)} ${tr(t.to)}`.toLowerCase().includes(q))
       .sort((a, b) => {
         let d: number;
         if (sort.key === "status") d = STATUS_ORDER[a.status] - STATUS_ORDER[b.status] || b.startedAt - a.startedAt;
@@ -57,7 +59,7 @@ export function TripTable({
         }
         return d * sign;
       });
-  }, [trips, debounced, status, sort]);
+  }, [trips, debounced, status, sort, tr]);
 
   function toggleSort(key: SortKey) {
     setSort((s) => (s.key === key ? { key, dir: s.dir === "asc" ? "desc" : "asc" } : { key, dir: "asc" }));
@@ -76,7 +78,7 @@ export function TripTable({
     a.download = "trip-log.csv";
     a.click();
     URL.revokeObjectURL(url);
-    toast.success("Trip log exported", { description: `${rows.length} trips` });
+    toast.success(tr("Trip log exported"), { description: tr("{n} trips", { n: rows.length }) });
   }
 
   return (
@@ -86,9 +88,9 @@ export function TripTable({
           <PackageSearch className="size-5" aria-hidden />
         </span>
         <div className="min-w-0 flex-1">
-          <h2 className="text-base font-semibold leading-tight">Trip log</h2>
+          <h2 className="text-base font-semibold leading-tight">{tr("Trip log")}</h2>
           <p className="text-xs text-muted-foreground">
-            Current and last completed trip per truck · {rows.length} shown · times in IST
+            {tr("Current and last completed trip per truck · {n} shown · times in IST", { n: rows.length })}
           </p>
         </div>
         <div className="relative w-full sm:w-56">
@@ -97,34 +99,34 @@ export function TripTable({
             type="search"
             value={search}
             onChange={(e) => setSearch(e.target.value)}
-            placeholder="Search trip, truck, site"
-            aria-label="Search trips"
+            placeholder={tr("Search trip, truck, site")}
+            aria-label={tr("Search trips")}
             className="h-10 w-full rounded-lg border bg-card pl-9 pr-3 text-sm outline-none transition-colors placeholder:text-muted-foreground hover:bg-muted/50 focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/30"
           />
         </div>
         <div className="relative">
           <Filter className="pointer-events-none absolute left-3 top-3 size-4 text-muted-foreground" aria-hidden />
           <select
-            aria-label="Filter log by status"
+            aria-label={tr("Filter log by status")}
             value={status}
             onChange={(e) => setStatus(e.target.value as TripStatus | "all")}
             className="h-10 appearance-none rounded-lg border bg-card pl-9 pr-8 text-sm font-medium transition-colors hover:bg-muted focus-visible:outline-2 focus-visible:outline-ring"
           >
-            <option value="all">All statuses</option>
+            <option value="all">{tr("All statuses")}</option>
             {(Object.keys(STATUS_CONFIG) as TripStatus[]).map((s) => (
               <option key={s} value={s}>
-                {STATUS_CONFIG[s].label}
+                {tr(STATUS_CONFIG[s].label)}
               </option>
             ))}
           </select>
           <ChevronDown className="pointer-events-none absolute right-2.5 top-3 size-4 text-muted-foreground" aria-hidden />
         </div>
         <Button variant="outline" className="h-10 gap-2 px-3.5" onClick={exportCsv}>
-          <Download /> Export
+          <Download /> {tr("Export")}
         </Button>
         {/* Phones have no column headers, so sorting gets a select + direction button */}
         <div className="flex w-full items-center gap-2 md:hidden">
-          <label htmlFor="trip-sort" className="sr-only">Sort trips by</label>
+          <label htmlFor="trip-sort" className="sr-only">{tr("Sort trips by")}</label>
           <select
             id="trip-sort"
             value={sort.key}
@@ -132,13 +134,13 @@ export function TripTable({
             className="h-10 min-w-0 flex-1 rounded-lg border bg-card px-3 text-sm"
           >
             {COLS.map((c) => (
-              <option key={c.key} value={c.key}>Sort by: {c.label}</option>
+              <option key={c.key} value={c.key}>{tr("Sort by: {label}", { label: tr(c.label) })}</option>
             ))}
           </select>
           <Button
             variant="outline"
             className="size-10 shrink-0 p-0"
-            aria-label={sort.dir === "asc" ? "Ascending, tap for descending" : "Descending, tap for ascending"}
+            aria-label={sort.dir === "asc" ? tr("Ascending, tap for descending") : tr("Descending, tap for ascending")}
             onClick={() => setSort((s) => ({ ...s, dir: s.dir === "asc" ? "desc" : "asc" }))}
           >
             {sort.dir === "asc" ? <ArrowUp className="size-4" aria-hidden /> : <ArrowDown className="size-4" aria-hidden />}
@@ -148,7 +150,7 @@ export function TripTable({
 
       {/* Phones: one card per trip instead of a 900px wide table */}
       <ul className="space-y-2 md:hidden">
-        {rows.length === 0 && <li className="rounded-xl border py-10 text-center text-sm text-muted-foreground">No trips match these filters.</li>}
+        {rows.length === 0 && <li className="rounded-xl border py-10 text-center text-sm text-muted-foreground">{tr("No trips match these filters.")}</li>}
         {rows.slice(0, mobileLimit).map((t) => (
           <li key={`m-${t.truck}-${t.id}`}>
             <button
@@ -166,21 +168,21 @@ export function TripTable({
                 <span className="min-w-0">
                   <span className="flex items-center gap-2 text-sm font-semibold">
                     <span className="size-2.5 shrink-0 rounded-full" style={{ background: CLASS_CONFIG[t.cls].color }} aria-hidden />
-                    {t.truck}
+                    {tr(t.truck)}
                   </span>
                   <span className="num block text-xs text-muted-foreground">#{t.id}</span>
                 </span>
                 <TripStatusChip status={t.status} />
               </span>
               <span className="mt-2 block text-xs text-muted-foreground">
-                {t.from} <span aria-hidden>→</span> {t.to}
+                {tr(t.from)} <span aria-hidden>→</span> {tr(t.to)}
               </span>
               <span className="mt-2 grid grid-cols-4 gap-2 text-xs">
                 {[
-                  ["Started", fmtClock(t.startedAt)],
-                  ["Arrival", t.arrivalAt ? fmtClock(t.arrivalAt) : t.status === "no-signal" ? "Unknown" : "Arrived"],
-                  ["Payload", `${t.payloadT.toFixed(1)} t`],
-                  ["Distance", `${t.distanceKm.toFixed(1)} km`],
+                  [tr("Started"), fmtClock(t.startedAt)],
+                  [tr("Arrival"), t.arrivalAt ? fmtClock(t.arrivalAt) : t.status === "no-signal" ? tr("Unknown") : tr("Arrived")],
+                  [tr("Payload"), `${t.payloadT.toFixed(1)} t`],
+                  [tr("Distance"), `${t.distanceKm.toFixed(1)} km`],
                 ].map(([k, v]) => (
                   <span key={k}>
                     <span className="block text-muted-foreground">{k}</span>
@@ -194,7 +196,7 @@ export function TripTable({
         {rows.length > mobileLimit && (
           <li>
             <Button variant="outline" className="h-11 w-full" onClick={() => setMobileLimit((n) => n + 8)}>
-              Show 8 more ({rows.length - mobileLimit} left)
+              {tr("Show 8 more ({n} left)", { n: rows.length - mobileLimit })}
             </Button>
           </li>
         )}
@@ -223,13 +225,13 @@ export function TripTable({
                         active && "text-foreground",
                       )}
                     >
-                      {c.label} <Icon className="size-3" aria-hidden />
+                      {tr(c.label)} <Icon className="size-3" aria-hidden />
                     </button>
                   </th>
                 );
               })}
               <th scope="col" className="px-3 text-left font-medium">
-                Route
+                {tr("Route")}
               </th>
             </tr>
           </thead>
@@ -237,7 +239,7 @@ export function TripTable({
             {rows.length === 0 && (
               <tr>
                 <td colSpan={COLS.length + 1} className="px-3 py-12 text-center text-muted-foreground">
-                  No trips match these filters.
+                  {tr("No trips match these filters.")}
                 </td>
               </tr>
             )}
@@ -257,21 +259,21 @@ export function TripTable({
                 <td className="px-3 py-3">
                   <span className="flex items-center gap-2 whitespace-nowrap">
                     <span className="size-2.5 rounded-full" style={{ background: CLASS_CONFIG[t.cls].color }} aria-hidden />
-                    {t.truck}
+                    {tr(t.truck)}
                   </span>
                 </td>
-                <td className="px-3 py-3">{t.material}</td>
+                <td className="px-3 py-3">{tr(t.material)}</td>
                 <td className="num px-3 py-3">{fmtClock(t.startedAt)}</td>
                 <td className="num px-3 py-3">
                   {t.arrivalAt ? (
                     <>
                       {fmtClock(t.arrivalAt)}
-                      {t.status === "hauling" && <span className="ml-1 text-xs text-muted-foreground">ETA</span>}
+                      {t.status === "hauling" && <span className="ml-1 text-xs text-muted-foreground">{tr("ETA")}</span>}
                     </>
                   ) : t.status === "no-signal" ? (
-                    <span className="text-bad">Unknown</span>
+                    <span className="text-bad">{tr("Unknown")}</span>
                   ) : (
-                    <span className="text-muted-foreground">Arrived</span>
+                    <span className="text-muted-foreground">{tr("Arrived")}</span>
                   )}
                 </td>
                 <td className="num px-3 py-3 text-right">{t.payloadT.toFixed(1)} t</td>
@@ -280,7 +282,7 @@ export function TripTable({
                   <TripStatusChip status={t.status} />
                 </td>
                 <td className="px-3 py-3 text-muted-foreground">
-                  {t.from} <span aria-hidden>→</span> {t.to}
+                  {tr(t.from)} <span aria-hidden>→</span> {tr(t.to)}
                 </td>
               </tr>
             ))}

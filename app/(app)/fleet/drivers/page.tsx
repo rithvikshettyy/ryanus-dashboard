@@ -1,4 +1,4 @@
-import type { Metadata } from "next";
+import { titleMeta } from "@/lib/i18n/server";
 import { IdCard, ShieldCheck, UserCheck, Users } from "lucide-react";
 import { DataTable } from "@/components/modules/data-table";
 import { ModulePage } from "@/components/modules/module-page";
@@ -6,7 +6,7 @@ import { StatStrip } from "@/components/modules/stat-strip";
 import { driverRows, driverStats } from "@/lib/fleet";
 import type { TableColumn } from "@/lib/table";
 
-export const metadata: Metadata = { title: "Driver directory" };
+export const generateMetadata = titleMeta("Driver directory");
 
 const COLUMNS: TableColumn[] = [
   { key: "driver", label: "Driver", primary: true, sub: true },

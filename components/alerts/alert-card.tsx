@@ -1,6 +1,7 @@
 "use client";
 
 import { CheckCheck, ChevronRight, Clock, MapPin, RotateCcw, UserRound, Wrench } from "lucide-react";
+import { useT } from "@/components/i18n-provider";
 import { Button } from "@/components/ui/button";
 import { ALERT_TYPE_CONFIG, EQUIPMENT_CONFIG, SEVERITY_CONFIG } from "@/lib/alerts";
 import { timeAgo } from "@/lib/format";
@@ -17,22 +18,23 @@ export interface AlertActions {
 }
 
 export function AlertActionButtons({ alert, actions, stretch = false }: { alert: Alert; actions: AlertActions; stretch?: boolean }) {
+  const t = useT();
   const cls = stretch ? "flex-1" : "";
   return (
     <div className="flex flex-wrap gap-2">
       {alert.status === "active" && (
         <Button variant="outline" className={cn("h-10 gap-1.5 px-3.5", cls)} onClick={() => actions.onAcknowledge(alert)}>
-          <CheckCheck /> Acknowledge
+          <CheckCheck /> {t("Acknowledge")}
         </Button>
       )}
       {alert.status !== "resolved" && (
         <Button className={cn("h-10 gap-1.5 px-3.5", cls)} onClick={() => actions.onResolve(alert)}>
-          Resolve
+          {t("Resolve")}
         </Button>
       )}
       {alert.status === "resolved" && (
         <Button variant="outline" className={cn("h-10 gap-1.5 px-3.5", cls)} onClick={() => actions.onReopen(alert)}>
-          <RotateCcw /> Reopen
+          <RotateCcw /> {t("Reopen")}
         </Button>
       )}
     </div>
@@ -40,6 +42,7 @@ export function AlertActionButtons({ alert, actions, stretch = false }: { alert:
 }
 
 export function AlertCard({ alert, now, actions }: { alert: Alert; now: number; actions: AlertActions }) {
+  const t = useT();
   const sev = SEVERITY_CONFIG[alert.severity];
   const Equip = EQUIPMENT_CONFIG[alert.equipmentType].icon;
   const TypeIcon = ALERT_TYPE_CONFIG[alert.type].icon;
@@ -50,7 +53,7 @@ export function AlertCard({ alert, now, actions }: { alert: Alert; now: number; 
 
   return (
     <article
-      aria-label={`${sev.label} alert: ${alert.equipmentName} ${alert.title}`}
+      aria-label={t("{sev} alert: {name} {title}", { sev: t(sev.label), name: alert.equipmentName, title: alert.title })}
       className={cn(
         "relative overflow-hidden rounded-2xl border bg-card shadow-xs transition-shadow duration-200 hover:shadow-md",
         resolved && "opacity-75",
@@ -70,8 +73,8 @@ export function AlertCard({ alert, now, actions }: { alert: Alert; now: number; 
               dateTime={new Date(alert.createdAt).toISOString()}
             >
               <Clock className="size-4" aria-hidden />
-              {timeAgo(age)}
-              {overdue && <span className="font-semibold">· Overdue</span>}
+              {timeAgo(age, t)}
+              {overdue && <span className="font-semibold">· {t("Overdue")}</span>}
             </time>
           </div>
 
@@ -80,21 +83,21 @@ export function AlertCard({ alert, now, actions }: { alert: Alert; now: number; 
               <Equip className="size-5" aria-hidden />
             </span>
             <div className="min-w-0">
-              <p className="truncate text-lg font-semibold leading-tight">{alert.equipmentName}</p>
+              <p className="truncate text-lg font-semibold leading-tight">{t(alert.equipmentName)}</p>
               <p className="flex items-center gap-1.5 text-sm text-muted-foreground">
                 <TypeIcon className="size-3.5" aria-hidden />
-                {alert.title}
+                {t(alert.title)}
               </p>
             </div>
           </div>
 
           <ul className="flex flex-wrap gap-x-4 gap-y-1 text-xs text-muted-foreground">
             <li className="flex items-center gap-1.5">
-              <MapPin className="size-3.5" aria-hidden /> {alert.location}
+              <MapPin className="size-3.5" aria-hidden /> {t(alert.location)}
             </li>
             {alert.operator && (
               <li className="flex items-center gap-1.5">
-                <UserRound className="size-3.5" aria-hidden /> {alert.operator}
+                <UserRound className="size-3.5" aria-hidden /> {t(alert.operator)}
               </li>
             )}
           </ul>
@@ -102,8 +105,8 @@ export function AlertCard({ alert, now, actions }: { alert: Alert; now: number; 
           <p className="flex gap-2 rounded-lg bg-muted/70 px-3 py-2 text-sm">
             <Wrench className="mt-0.5 size-4 shrink-0 text-muted-foreground" aria-hidden />
             <span>
-              <span className="font-medium">Next step: </span>
-              {alert.action}
+              <span className="font-medium">{t("Next step:")} </span>
+              {t(alert.action)}
             </span>
           </p>
         </div>
@@ -113,7 +116,7 @@ export function AlertCard({ alert, now, actions }: { alert: Alert; now: number; 
           <div className="flex flex-wrap items-center justify-between gap-2">
             <AlertActionButtons alert={alert} actions={actions} />
             <Button variant="ghost" className="h-10 gap-1 px-3" onClick={() => actions.onOpen(alert)}>
-              Details <ChevronRight />
+              {t("Details")} <ChevronRight />
             </Button>
           </div>
         </div>

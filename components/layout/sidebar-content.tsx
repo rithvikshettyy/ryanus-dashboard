@@ -10,6 +10,8 @@ import {
 import { cn } from "@/lib/utils";
 import { applyStatuses, useAlertStatuses } from "@/hooks/use-alert-statuses";
 import { loadAlerts } from "@/lib/alerts";
+import { useT } from "@/components/i18n-provider";
+import { LanguageSwitcher } from "./language-switcher";
 
 interface NavItem {
   href: string;
@@ -41,13 +43,15 @@ const SEED_CRITICAL = loadAlerts(0).filter((a) => a.severity === "critical");
 
 const isActive = (pathname: string, href: string) => pathname === href || pathname.startsWith(`${href}/`);
 
-function SectionLabel({ children }: { children: React.ReactNode }) {
+function SectionLabel({ children }: { children: string }) {
+  const t = useT();
   return (
-    <p className="px-2 pb-1 pt-3 text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">{children}</p>
+    <p className="px-2 pb-1 pt-3 text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">{t(children)}</p>
   );
 }
 
 export function SidebarContent({ onNavigate }: { onNavigate?: () => void }) {
+  const t = useT();
   const pathname = usePathname(); // client hook: reads the current URL to highlight the active link
   // Badge = critical alerts nobody has acknowledged or resolved yet
   const { overrides } = useAlertStatuses();
@@ -72,7 +76,7 @@ export function SidebarContent({ onNavigate }: { onNavigate?: () => void }) {
         )}
       >
         <Icon className={nested ? "size-4" : "size-[18px]"} aria-hidden />
-        <span className="min-w-0 flex-1 truncate">{label}</span>
+        <span className="min-w-0 flex-1 truncate">{t(label)}</span>
         {badge && openCritical > 0 && (
           <span className="num flex h-5 min-w-5 items-center justify-center rounded-md bg-bad px-1.5 text-[11px] font-semibold text-white">
             {openCritical}
@@ -89,8 +93,8 @@ export function SidebarContent({ onNavigate }: { onNavigate?: () => void }) {
           <Pickaxe className="size-5" aria-hidden />
         </div>
         <div className="leading-tight">
-          <p className="text-[15px] font-semibold">Ryanus Mining</p>
-          <p className="text-xs text-muted-foreground">Operations console</p>
+          <p className="text-[15px] font-semibold">{t("Ryanus Mining")}</p>
+          <p className="text-xs text-muted-foreground">{t("Operations console")}</p>
         </div>
       </div>
 
@@ -99,13 +103,13 @@ export function SidebarContent({ onNavigate }: { onNavigate?: () => void }) {
           JB
         </div>
         <div className="min-w-0 flex-1 leading-tight">
-          <p className="truncate text-sm font-medium">Faridabad Site</p>
-          <p className="truncate text-xs text-muted-foreground">Faridabad, Haryana</p>
+          <p className="truncate text-sm font-medium">{t("Faridabad Site")}</p>
+          <p className="truncate text-xs text-muted-foreground">{t("Faridabad, Haryana")}</p>
         </div>
       </div>
 
       {/* Scrolls on its own when the menu is taller than the screen (phones, small laptops) */}
-      <nav aria-label="Main" className="-mx-1 flex min-h-0 flex-1 flex-col gap-1 overflow-y-auto px-1">
+      <nav aria-label={t("Main")} className="-mx-1 flex min-h-0 flex-1 flex-col gap-1 overflow-y-auto px-1">
         <SectionLabel>Main menu</SectionLabel>
         {MAIN.map((i) => link(i))}
 
@@ -120,7 +124,7 @@ export function SidebarContent({ onNavigate }: { onNavigate?: () => void }) {
           )}
         >
           <ListTree className="size-[18px]" aria-hidden />
-          <span className="flex-1 text-left">Fleet management</span>
+          <span className="flex-1 text-left">{t("Fleet management")}</span>
           <ChevronDown className={cn("size-4 transition-transform", fleetOpen && "rotate-180")} aria-hidden />
         </button>
         {fleetOpen && (
@@ -134,7 +138,10 @@ export function SidebarContent({ onNavigate }: { onNavigate?: () => void }) {
       </nav>
 
       {/* Pinned to the bottom: stays visible while the menu above scrolls */}
-      <div className="border-t pt-2">{link(SETTINGS)}</div>
+      <div className="space-y-2 border-t pt-2">
+        <LanguageSwitcher />
+        {link(SETTINGS)}
+      </div>
     </div>
   );
 }

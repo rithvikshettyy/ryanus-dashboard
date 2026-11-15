@@ -4,8 +4,12 @@ import { AlertsView } from "@/components/alerts/alerts-view";
 import { LiveStatus } from "@/components/alerts/live-status";
 import { PageHeader } from "@/components/layout/page-header";
 import { currentTime, loadAlerts } from "@/lib/alerts";
+import { getT } from "@/lib/i18n/server";
 
-export const metadata: Metadata = { title: "Alerts" };
+export async function generateMetadata(): Promise<Metadata> {
+  const t = await getT();
+  return { title: t("Alerts") };
+}
 
 export default async function AlertsPage({
   searchParams,

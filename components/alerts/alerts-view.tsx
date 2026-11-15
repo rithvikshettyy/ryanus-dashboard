@@ -4,6 +4,7 @@ import { useCallback, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 import { ShieldCheck, SearchX } from "lucide-react";
 import { toast } from "sonner";
+import { useT } from "@/components/i18n-provider";
 import { Button } from "@/components/ui/button";
 import { Panel } from "@/components/ui/panel";
 import { useDebounce } from "@/hooks/use-debounce";
@@ -27,6 +28,7 @@ export function AlertsView({
   serverNow: number;
   initialOpenId: string | null;
 }) {
+  const t = useT();
   const router = useRouter();
   // Status changes live in a shared store (not local state) so the sidebar badge and bell update too.
   const { overrides, setStatus } = useAlertStatuses();
@@ -77,8 +79,8 @@ export function AlertsView({
   function update(a: Alert, status: Alert["status"], verb: string) {
     const previous = a.status;
     setStatus(a.id, status);
-    toast.success(`${a.equipmentName} ${a.title} ${verb}`, {
-      action: { label: "Undo", onClick: () => setStatus(a.id, previous) },
+    toast.success(t(`{name} {title} ${verb}`, { name: a.equipmentName, title: a.title }), {
+      action: { label: t("Undo"), onClick: () => setStatus(a.id, previous) },
     });
   }
 
@@ -96,7 +98,7 @@ export function AlertsView({
       <AlertFiltersBar filters={filters} onChange={change} onClear={() => setFilters(DEFAULT_ALERT_FILTERS)} counts={counts} />
 
       <p className="text-sm text-muted-foreground" aria-live="polite">
-        Showing <span className="num font-medium text-foreground">{visible.length}</span> of {alerts.length} alerts · critical first, then newest
+        {t("Showing {n} of {m} alerts · critical first, then newest", { n: visible.length, m: alerts.length })}
       </p>
 
       {visible.length === 0 ? (
@@ -106,15 +108,15 @@ export function AlertsView({
               <span className="flex size-12 items-center justify-center rounded-full bg-good-bg text-good">
                 <ShieldCheck className="size-6" aria-hidden />
               </span>
-              <p className="text-lg font-semibold">All clear</p>
-              <p className="text-sm text-muted-foreground">No open alerts. Every piece of equipment is within limits.</p>
+              <p className="text-lg font-semibold">{t("All clear")}</p>
+              <p className="text-sm text-muted-foreground">{t("No open alerts. Every piece of equipment is within limits.")}</p>
             </>
           ) : (
             <>
               <SearchX className="size-8 text-muted-foreground" aria-hidden />
-              <p className="font-semibold">No alerts match these filters</p>
+              <p className="font-semibold">{t("No alerts match these filters")}</p>
               <Button variant="outline" className="mt-2 h-10" onClick={() => setFilters(DEFAULT_ALERT_FILTERS)}>
-                Clear filters
+                {t("Clear filters")}
               </Button>
             </>
           )}

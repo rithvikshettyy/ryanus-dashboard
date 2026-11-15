@@ -1,6 +1,7 @@
 "use client";
 
 import { Activity, CheckCircle2, OctagonAlert, TriangleAlert, type LucideIcon } from "lucide-react";
+import { useT } from "@/components/i18n-provider";
 import type { Alert } from "@/lib/types";
 import type { AlertFilters } from "@/lib/alert-filters";
 import { cn } from "@/lib/utils";
@@ -16,6 +17,7 @@ export function StatCards({
   filters: AlertFilters;
   onSelect: (k: QuickFilter) => void;
 }) {
+  const t = useT();
   // Derived state: counts are computed from the alerts every render, never stored separately.
   const open = alerts.filter((a) => a.status !== "resolved");
   const cards: { key: QuickFilter; label: string; value: number; icon: LucideIcon; tone: string; on: boolean }[] = [
@@ -26,7 +28,7 @@ export function StatCards({
   ];
 
   return (
-    <section aria-label="Alert overview" className="grid grid-cols-2 gap-3 lg:grid-cols-4 lg:gap-4">
+    <section aria-label={t("Alert overview")} className="grid grid-cols-2 gap-3 lg:grid-cols-4 lg:gap-4">
       {cards.map((c) => (
         <button
           key={c.key}
@@ -39,7 +41,7 @@ export function StatCards({
           )}
         >
           <div>
-            <p className="text-sm text-muted-foreground">{c.label}</p>
+            <p className="text-sm text-muted-foreground">{t(c.label)}</p>
             <p className="num mt-1 text-3xl font-semibold tracking-tight">{c.value}</p>
           </div>
           <span className={cn("flex size-10 items-center justify-center rounded-xl", c.tone)}>

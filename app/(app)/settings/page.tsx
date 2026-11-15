@@ -1,8 +1,8 @@
-import type { Metadata } from "next";
+import { titleMeta } from "@/lib/i18n/server";
 import { ModulePage } from "@/components/modules/module-page";
 import { SettingsForm } from "@/components/modules/settings-form";
 
-export const metadata: Metadata = { title: "Settings" };
+export const generateMetadata = titleMeta("Settings");
 
 export default function SettingsPage() {
   return (

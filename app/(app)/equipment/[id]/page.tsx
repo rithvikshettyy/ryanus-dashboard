@@ -9,6 +9,7 @@ import { PageHeader } from "@/components/layout/page-header";
 import { Panel, PanelHeader } from "@/components/ui/panel";
 import { EQUIPMENT_CONFIG, SEVERITY_RANK, currentTime, loadAlerts } from "@/lib/alerts";
 import { timeAgo } from "@/lib/format";
+import { getT } from "@/lib/i18n/server";
 
 type Props = { params: Promise<{ id: string }> };
 
@@ -21,12 +22,14 @@ function forEquipment(id: string, now: number) {
 // params is a Promise in Next 15+. App Router equivalent of getServerSideProps({ params }).
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { id } = await params;
+  const t = await getT();
   const first = forEquipment(id, 0)[0];
-  return { title: first ? first.equipmentName : "Equipment" };
+  return { title: first ? t(first.equipmentName) : t("Equipment") };
 }
 
 export default async function EquipmentPage({ params }: Props) {
   await connection();
+  const t = await getT();
   const { id } = await params;
   const now = currentTime();
   const alerts = forEquipment(id, now);
@@ -38,10 +41,10 @@ export default async function EquipmentPage({ params }: Props) {
 
   return (
     <>
-      <PageHeader title={eq.equipmentName} subtitle={`${EQUIPMENT_CONFIG[eq.equipmentType].label} · ${eq.location}`} />
+      <PageHeader title={eq.equipmentName} subtitle={`${t(EQUIPMENT_CONFIG[eq.equipmentType].label)} · ${t(eq.location)}`} />
       <div className="mx-auto max-w-[1000px] space-y-5 p-4 md:p-8">
         <Link href="/alerts" className="inline-flex h-10 items-center gap-1.5 text-sm text-muted-foreground transition-colors hover:text-foreground">
-          <ArrowLeft className="size-4" /> Back to alerts
+          <ArrowLeft className="size-4" /> {t("Back to alerts")}
         </Link>
 
         <Panel className="flex flex-wrap items-center gap-4">
@@ -49,20 +52,20 @@ export default async function EquipmentPage({ params }: Props) {
             <Icon className="size-7" aria-hidden />
           </span>
           <div className="min-w-0 flex-1">
-            <p className="text-lg font-semibold">{eq.equipmentName}</p>
+            <p className="text-lg font-semibold">{t(eq.equipmentName)}</p>
             <p className="flex flex-wrap gap-x-4 gap-y-1 text-sm text-muted-foreground">
-              <span className="flex items-center gap-1.5"><MapPin className="size-3.5" /> {eq.location}</span>
-              {eq.operator && <span className="flex items-center gap-1.5"><UserRound className="size-3.5" /> {eq.operator}</span>}
+              <span className="flex items-center gap-1.5"><MapPin className="size-3.5" /> {t(eq.location)}</span>
+              {eq.operator && <span className="flex items-center gap-1.5"><UserRound className="size-3.5" /> {t(eq.operator)}</span>}
             </p>
           </div>
           <div className="flex gap-6 text-center">
             <div>
               <p className="num text-2xl font-semibold">{open.length}</p>
-              <p className="text-xs text-muted-foreground">Open alerts</p>
+              <p className="text-xs text-muted-foreground">{t("Open alerts")}</p>
             </div>
             <div>
               <p className="num text-2xl font-semibold">{alerts.length}</p>
-              <p className="text-xs text-muted-foreground">Total alerts</p>
+              <p className="text-xs text-muted-foreground">{t("Total alerts")}</p>
             </div>
           </div>
         </Panel>
@@ -76,10 +79,10 @@ export default async function EquipmentPage({ params }: Props) {
                   <div className="flex flex-wrap items-center gap-2">
                     <SeverityBadge severity={a.severity} />
                     <StatusPill status={a.status} />
-                    <span className="num text-xs text-muted-foreground">{timeAgo(now - a.createdAt)}</span>
+                    <span className="num text-xs text-muted-foreground">{timeAgo(now - a.createdAt, t)}</span>
                   </div>
-                  <p className="font-medium">{a.title}</p>
-                  <p className="text-sm text-muted-foreground">{a.action}</p>
+                  <p className="font-medium">{t(a.title)}</p>
+                  <p className="text-sm text-muted-foreground">{t(a.action)}</p>
                 </div>
                 <ThresholdBar alert={a} />
               </li>

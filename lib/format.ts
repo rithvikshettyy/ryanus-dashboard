@@ -1,3 +1,5 @@
+import { makeT, type TFn } from "./i18n";
+
 const nf0 = new Intl.NumberFormat("en-IN", { maximumFractionDigits: 0 });
 const nf1 = new Intl.NumberFormat("en-IN", { minimumFractionDigits: 1, maximumFractionDigits: 1 });
 const nf2 = new Intl.NumberFormat("en-IN", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
@@ -27,19 +29,23 @@ export function fmtDate(iso: string): string {
   return `${d} ${MONTHS[m - 1]}`;
 }
 
-export function fmtRange(from: string, to: string): string {
-  return from === to ? fmtDate(from) : `${fmtDate(from)} to ${fmtDate(to)}`;
+/** Pass `t` to localise (month names via the glossary, "to" via a template). */
+export function fmtRange(from: string, to: string, t?: TFn): string {
+  const a = fmtDate(from);
+  const b = fmtDate(to);
+  if (!t) return from === to ? a : `${a} to ${b}`;
+  return from === to ? t(a) : t("{a} to {b}", { a, b });
 }
 
 /** Compact "time ago" from a millisecond difference. */
-export function timeAgo(ms: number): string {
+export function timeAgo(ms: number, t: TFn = makeT("en")): string {
   const min = Math.max(0, Math.floor(ms / 60000));
-  if (min < 1) return "just now";
-  if (min < 60) return `${min} min ago`;
+  if (min < 1) return t("just now");
+  if (min < 60) return t("{n} min ago", { n: min });
   const h = Math.floor(min / 60);
-  if (h < 24) return min % 60 ? `${h} h ${min % 60} min ago` : `${h} h ago`;
+  if (h < 24) return min % 60 ? t("{h} h {m} min ago", { h, m: min % 60 }) : t("{h} h ago", { h });
   const d = Math.floor(h / 24);
-  return `${d} d ago`;
+  return t("{d} d ago", { d });
 }
 
 export function csvEscape(v: string | number): string {

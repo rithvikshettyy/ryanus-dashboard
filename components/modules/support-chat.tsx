@@ -3,6 +3,7 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import Link from "next/link";
 import { ArrowUpRight, Bot, Search, SendHorizontal, Sparkles, User } from "lucide-react";
+import { useLang, useT } from "@/components/i18n-provider";
 import { Sheet, SheetContent, SheetDescription, SheetTitle } from "@/components/ui/sheet";
 import { applyStatuses, useAlertStatuses } from "@/hooks/use-alert-statuses";
 import { alertChunks } from "@/lib/knowledge-alerts";
@@ -13,7 +14,9 @@ import { cn } from "@/lib/utils";
 interface Message {
   id: number;
   from: "user" | "bot";
-  text: string;
+  text?: string; // what the user typed
+  kind?: "greeting" | "found" | "none"; // bot messages are translated when shown, so a language switch updates them
+  count?: number;
   hits?: Hit[];
 }
 
@@ -26,11 +29,7 @@ const SUGGESTIONS = [
   "How is fuel per tonne calculated?",
 ];
 
-const GREETING: Message = {
-  id: 0,
-  from: "bot",
-  text: "Hi, I am the Ryanus support assistant. What do you need?",
-};
+const GREETING: Message = { id: 0, from: "bot", kind: "greeting" };
 
 /**
  * Retrieval chatbot: no external API. Every answer is built from chunks of this site's own data
@@ -49,6 +48,8 @@ export function SupportChat({
   alerts: Alert[];
   serverNow: number;
 }) {
+  const t = useT();
+  const lang = useLang();
   const [messages, setMessages] = useState<Message[]>([GREETING]);
   const [draft, setDraft] = useState("");
   const [thinking, setThinking] = useState(false);
@@ -59,8 +60,8 @@ export function SupportChat({
   // Alerts are rebuilt in the browser so answers match what the user acknowledged or resolved.
   const { overrides } = useAlertStatuses();
   const index = useMemo(
-    () => buildIndex([...chunks, ...alertChunks(applyStatuses(alerts, overrides), serverNow)]),
-    [chunks, alerts, overrides, serverNow],
+    () => buildIndex([...chunks, ...alertChunks(applyStatuses(alerts, overrides), serverNow, t, lang)]),
+    [chunks, alerts, overrides, serverNow, t, lang],
   );
 
   useEffect(() => {
@@ -87,14 +88,11 @@ export function SupportChat({
         ? {
             id: nextId.current++,
             from: "bot",
-            text: hits.length === 1 ? "Here is what I found:" : `I found ${hits.length} matching records:`,
+            kind: "found",
+            count: hits.length,
             hits,
           }
-        : {
-            id: nextId.current++,
-            from: "bot",
-            text: "I could not find that in the site data. Try a truck name (Coal Dumper 03), an alert, a work order such as WO-2411, a shipment, or a topic like fuel per tonne.",
-          };
+        : { id: nextId.current++, from: "bot", kind: "none" };
       setMessages((m) => [...m, reply]);
       setThinking(false);
     }, 350);
@@ -108,12 +106,12 @@ export function SupportChat({
             <Sparkles className="size-[18px]" aria-hidden />
           </span>
           <div className="min-w-0">
-            <SheetTitle className="text-sm font-semibold">Ask support</SheetTitle>
-            <SheetDescription className="text-xs">Answers come from this site&apos;s data, nothing leaves your browser.</SheetDescription>
+            <SheetTitle className="text-sm font-semibold">{t("Ask support")}</SheetTitle>
+            <SheetDescription className="text-xs">{t("Answers come from this site's data, nothing leaves your browser.")}</SheetDescription>
           </div>
         </div>
 
-        <div className="flex-1 space-y-4 overflow-y-auto px-4 py-4" role="log" aria-live="polite" aria-label="Conversation">
+        <div className="flex-1 space-y-4 overflow-y-auto px-4 py-4" role="log" aria-live="polite" aria-label={t("Conversation")}>
           {messages.map((m) => (
             <div key={m.id} className={cn("flex gap-2.5", m.from === "user" && "flex-row-reverse")}>
               <span
@@ -132,7 +130,14 @@ export function SupportChat({
                     m.from === "user" ? "bg-primary text-primary-foreground" : "bg-muted",
                   )}
                 >
-                  {m.text}
+                  {m.text ??
+                    (m.kind === "greeting"
+                      ? t("Hi, I am the Ryanus support assistant. What do you need?")
+                      : m.kind === "found"
+                        ? m.count === 1
+                          ? t("Here is what I found:")
+                          : t("I found {n} matching records:", { n: m.count ?? 0 })
+                        : t("I could not find that in the site data. Try a truck name (Coal Dumper 03), an alert, a work order such as WO-2411, a shipment, or a topic like fuel per tonne."))}
                 </p>
                 {m.hits?.map(({ chunk }) => (
                   <div key={chunk.id} className="rounded-xl border bg-card p-3 text-left shadow-xs">
@@ -143,7 +148,7 @@ export function SupportChat({
                       onClick={() => onOpenChange(false)}
                       className="mt-2 inline-flex h-8 items-center gap-1 rounded-md px-1 text-xs font-medium text-primary hover:underline"
                     >
-                      Open in the app <ArrowUpRight className="size-3.5" aria-hidden />
+                      {t("Open in the app")} <ArrowUpRight className="size-3.5" aria-hidden />
                     </Link>
                   </div>
                 ))}
@@ -153,7 +158,7 @@ export function SupportChat({
 
           {thinking && (
             <p className="flex items-center gap-2 text-xs text-muted-foreground">
-              <Search className="size-3.5 animate-pulse" aria-hidden /> Searching site data…
+              <Search className="size-3.5 animate-pulse" aria-hidden /> {t("Searching site data…")}
             </p>
           )}
 
@@ -163,10 +168,10 @@ export function SupportChat({
                 <button
                   key={s}
                   type="button"
-                  onClick={() => ask(s)}
+                  onClick={() => ask(t(s))}
                   className="min-h-9 rounded-full border px-3 py-1.5 text-left text-xs font-medium text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
                 >
-                  {s}
+                  {t(s)}
                 </button>
               ))}
             </div>
@@ -184,14 +189,14 @@ export function SupportChat({
           <input
             value={draft}
             onChange={(e) => setDraft(e.target.value)}
-            placeholder="Ask about alerts, trucks, fuel…"
-            aria-label="Your question"
+            placeholder={t("Ask about alerts, trucks, fuel…")}
+            aria-label={t("Your question")}
             className="h-11 min-w-0 flex-1 rounded-xl border bg-background px-3 text-sm outline-none placeholder:text-muted-foreground focus-visible:ring-2 focus-visible:ring-primary/30"
           />
           <button
             type="submit"
             disabled={!draft.trim() || thinking}
-            aria-label="Send"
+            aria-label={t("Send")}
             className="flex size-11 shrink-0 items-center justify-center rounded-xl bg-primary text-primary-foreground transition-opacity disabled:opacity-40"
           >
             <SendHorizontal className="size-[18px]" aria-hidden />

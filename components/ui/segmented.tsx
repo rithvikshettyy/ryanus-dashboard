@@ -1,5 +1,6 @@
 "use client";
 
+import { useT } from "@/components/i18n-provider";
 import { cn } from "@/lib/utils";
 
 /** Small segmented control (like the Overviews / Tracking tabs in the reference). */
@@ -16,8 +17,9 @@ export function Segmented<T extends string>({
   label: string;
   className?: string;
 }) {
+  const t = useT();
   return (
-    <div role="group" aria-label={label} className={cn("no-scrollbar inline-flex max-w-full gap-1 overflow-x-auto rounded-xl bg-muted p-1", className)}>
+    <div role="group" aria-label={t(label)} className={cn("no-scrollbar inline-flex max-w-full gap-1 overflow-x-auto rounded-xl bg-muted p-1", className)}>
       {options.map((o) => (
         <button
           key={o.value}
@@ -31,7 +33,7 @@ export function Segmented<T extends string>({
               : "text-muted-foreground hover:text-foreground",
           )}
         >
-          {o.label}
+          {t(o.label)}
           {o.count !== undefined && <span className="num text-xs text-muted-foreground">{o.count}</span>}
         </button>
       ))}

@@ -1,6 +1,7 @@
 "use client";
 
 import { ChartArea, ChartColumn, ChartLine, ChartPie, type LucideIcon } from "lucide-react";
+import { useT } from "@/components/i18n-provider";
 import { cn } from "@/lib/utils";
 
 export type ChartType = "line" | "bar" | "area" | "pie";
@@ -22,10 +23,12 @@ export function ChartTypePicker({
   onChange: (t: ChartType) => void;
   types: ChartType[];
 }) {
+  const tr = useT();
   return (
-    <div role="group" aria-label="Chart type" className="inline-flex gap-1 rounded-xl bg-muted p-1">
+    <div role="group" aria-label={tr("Chart type")} className="inline-flex gap-1 rounded-xl bg-muted p-1">
       {types.map((t) => {
-        const { label, icon: Icon } = META[t];
+        const { icon: Icon } = META[t];
+        const label = tr(META[t].label);
         const on = t === value;
         return (
           <button

@@ -3,7 +3,7 @@
 @import "shadcn/tailwind.css";
 
 @theme inline {
-  --font-sans: var(--font-geist-sans), ui-sans-serif, system-ui, sans-serif;
+  --font-sans: var(--font-geist-sans), var(--font-devanagari), ui-sans-serif, system-ui, sans-serif;
   /* One typeface site-wide: any "mono" utility also resolves to Geist, so nothing falls back to a different font */
   --font-mono: var(--font-sans);
   --font-heading: var(--font-sans);

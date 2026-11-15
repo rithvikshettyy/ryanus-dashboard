@@ -1,4 +1,4 @@
-import type { Metadata } from "next";
+import { titleMeta } from "@/lib/i18n/server";
 import { CircleCheck, Clock, PackageCheck, Truck } from "lucide-react";
 import { DataTable } from "@/components/modules/data-table";
 import { ModulePage } from "@/components/modules/module-page";
@@ -7,7 +7,7 @@ import { fmt0 } from "@/lib/format";
 import { shipmentRows, shipmentStats } from "@/lib/fleet";
 import type { TableColumn } from "@/lib/table";
 
-export const metadata: Metadata = { title: "Shipments & deliveries" };
+export const generateMetadata = titleMeta("Shipments & deliveries");
 
 const COLUMNS: TableColumn[] = [
   { key: "shipment", label: "Shipment", primary: true, sub: true },

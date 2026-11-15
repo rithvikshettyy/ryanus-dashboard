@@ -1,4 +1,4 @@
-import type { Metadata } from "next";
+import { titleMeta } from "@/lib/i18n/server";
 import { connection } from "next/server";
 import { Gauge, Truck, Wrench, Activity } from "lucide-react";
 import { DataTable } from "@/components/modules/data-table";
@@ -8,7 +8,7 @@ import { currentTime } from "@/lib/alerts";
 import { vehicleRows } from "@/lib/fleet";
 import type { TableColumn } from "@/lib/table";
 
-export const metadata: Metadata = { title: "All vehicles" };
+export const generateMetadata = titleMeta("All vehicles");
 
 const COLUMNS: TableColumn[] = [
   { key: "vehicle", label: "Vehicle", primary: true },

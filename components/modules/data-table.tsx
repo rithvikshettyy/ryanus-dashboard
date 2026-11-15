@@ -4,6 +4,7 @@ import { useMemo, useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { ArrowDown, ArrowUp, ArrowUpDown, Download, PackageSearch, Search, X } from "lucide-react";
+import { useT } from "@/components/i18n-provider";
 import { Button } from "@/components/ui/button";
 import { Panel } from "@/components/ui/panel";
 import { useDebounce } from "@/hooks/use-debounce";
@@ -44,6 +45,9 @@ interface Props {
  * CSV export. Desktop = table, mobile = stacked cards (no sideways scrolling on a phone).
  */
 export function DataTable({ columns, rows, filterKey, searchPlaceholder = "Search", exportName = "export", emptyText = "Nothing matches these filters." }: Props) {
+  const t = useT();
+  // Cell values arrive as English text from the server: translate strings at render time, leave numbers alone
+  const tv = (v: string | number | undefined) => (typeof v === "string" ? t(v) : v);
   const [query, setQuery] = useState("");
   const [chip, setChip] = useState("All");
   const [sort, setSort] = useState<{ key: string; dir: "asc" | "desc" } | null>(null);
@@ -61,7 +65,7 @@ export function DataTable({ columns, rows, filterKey, searchPlaceholder = "Searc
     let out = rows.filter((r) => {
       if (filterKey && chip !== "All" && String(r[filterKey]) !== chip) return false;
       if (!q) return true;
-      return Object.values(r).some((v) => typeof v === "string" && v.toLowerCase().includes(q));
+      return Object.values(r).some((v) => typeof v === "string" && (v.toLowerCase().includes(q) || t(v).toLowerCase().includes(q)));
     });
     if (sort) {
       const { key, dir } = sort;
@@ -74,7 +78,7 @@ export function DataTable({ columns, rows, filterKey, searchPlaceholder = "Searc
       });
     }
     return out;
-  }, [rows, filterKey, chip, q, sort]);
+  }, [rows, filterKey, chip, q, sort, t]);
 
   // Back to the first page whenever the list changes (adjust state during render, no effect needed)
   const listKey = `${q}|${chip}|${sort?.key}|${sort?.dir}`;
@@ -106,8 +110,8 @@ export function DataTable({ columns, rows, filterKey, searchPlaceholder = "Searc
   const plainCols = rest.filter((c) => !c.badge);
 
   const cell = (r: TableRow, c: TableColumn) =>
-    c.badge ? <Badge tone={r[`${c.key}Tone`] as Tone | undefined}>{r[c.key]}</Badge> : (
-      <span className={cn(c.numeric && "num", r[`${c.key}Tone`] && !c.badge && TONE[r[`${c.key}Tone`] as Tone].split(" ")[1])}>{r[c.key]}</span>
+    c.badge ? <Badge tone={r[`${c.key}Tone`] as Tone | undefined}>{tv(r[c.key])}</Badge> : (
+      <span className={cn(c.numeric && "num", r[`${c.key}Tone`] && !c.badge && TONE[r[`${c.key}Tone`] as Tone].split(" ")[1])}>{tv(r[c.key])}</span>
     );
 
   const primaryCell = (r: TableRow) => {
@@ -119,8 +123,8 @@ export function DataTable({ columns, rows, filterKey, searchPlaceholder = "Searc
           </span>
         )}
         <span className="min-w-0">
-          <span className="block font-medium">{r[primary.key]}</span>
-          {r[`${primary.key}Sub`] && <span className="block text-xs text-muted-foreground">{r[`${primary.key}Sub`]}</span>}
+          <span className="block font-medium">{tv(r[primary.key])}</span>
+          {r[`${primary.key}Sub`] && <span className="block text-xs text-muted-foreground">{tv(r[`${primary.key}Sub`])}</span>}
         </span>
       </span>
     );
@@ -142,15 +146,15 @@ export function DataTable({ columns, rows, filterKey, searchPlaceholder = "Searc
             <input
               value={query}
               onChange={(e) => setQuery(e.target.value)}
-              placeholder={searchPlaceholder}
-              aria-label={searchPlaceholder}
+              placeholder={t(searchPlaceholder)}
+              aria-label={t(searchPlaceholder)}
               className="h-10 w-full rounded-lg border bg-background pl-9 pr-9 text-sm outline-none transition-shadow placeholder:text-muted-foreground focus-visible:ring-2 focus-visible:ring-primary/30"
             />
             {query && (
               <button
                 type="button"
                 onClick={() => setQuery("")}
-                aria-label="Clear search"
+                aria-label={t("Clear search")}
                 className="absolute right-1 top-1/2 flex size-8 -translate-y-1/2 items-center justify-center rounded-md text-muted-foreground hover:bg-muted"
               >
                 <X className="size-4" />
@@ -158,12 +162,12 @@ export function DataTable({ columns, rows, filterKey, searchPlaceholder = "Searc
             )}
           </div>
           <Button variant="outline" className="h-10 gap-2" onClick={exportCsv}>
-            <Download className="size-4" aria-hidden /> Export CSV
+            <Download className="size-4" aria-hidden /> {t("Export CSV")}
           </Button>
         </div>
 
         {chips.length > 0 && (
-          <div className="no-scrollbar -mx-1 flex gap-2 overflow-x-auto px-1 pb-1" role="group" aria-label="Filter">
+          <div className="no-scrollbar -mx-1 flex gap-2 overflow-x-auto px-1 pb-1" role="group" aria-label={t("Filter")}>
             {chips.map(([label, count]) => (
               <button
                 key={label}
@@ -175,7 +179,7 @@ export function DataTable({ columns, rows, filterKey, searchPlaceholder = "Searc
                   chip === label ? "border-primary bg-primary-soft text-primary" : "text-muted-foreground hover:bg-muted",
                 )}
               >
-                {label}
+                {t(label)}
                 <span className="num text-xs opacity-70">{count}</span>
               </button>
             ))}
@@ -184,23 +188,23 @@ export function DataTable({ columns, rows, filterKey, searchPlaceholder = "Searc
 
         {/* Phones have no column headers to tap, so sorting gets its own select + direction button */}
         <div className="flex items-center gap-2 md:hidden">
-          <label htmlFor="mobile-sort" className="sr-only">Sort by</label>
+          <label htmlFor="mobile-sort" className="sr-only">{t("Sort by")}</label>
           <select
             id="mobile-sort"
             value={sort?.key ?? ""}
             onChange={(e) => setSort(e.target.value ? { key: e.target.value, dir: sort?.dir ?? "asc" } : null)}
             className="h-10 min-w-0 flex-1 rounded-lg border bg-background px-3 text-sm"
           >
-            <option value="">Sort by: default order</option>
+            <option value="">{t("Sort by: default order")}</option>
             {columns.map((c) => (
-              <option key={c.key} value={c.key}>Sort by: {c.label}</option>
+              <option key={c.key} value={c.key}>{t("Sort by: {label}", { label: t(c.label) })}</option>
             ))}
           </select>
           <Button
             variant="outline"
             className="size-10 shrink-0 p-0"
             disabled={!sort}
-            aria-label={sort?.dir === "desc" ? "Descending, tap for ascending" : "Ascending, tap for descending"}
+            aria-label={sort?.dir === "desc" ? t("Descending, tap for ascending") : t("Ascending, tap for descending")}
             onClick={() => setSort((s) => (s ? { ...s, dir: s.dir === "asc" ? "desc" : "asc" } : s))}
           >
             {sort?.dir === "desc" ? <ArrowDown className="size-4" aria-hidden /> : <ArrowUp className="size-4" aria-hidden />}
@@ -211,10 +215,10 @@ export function DataTable({ columns, rows, filterKey, searchPlaceholder = "Searc
       {visible.length === 0 ? (
         <div className="flex flex-col items-center gap-2 px-4 py-14 text-center">
           <PackageSearch className="size-8 text-muted-foreground" aria-hidden />
-          <p className="font-semibold">No results</p>
-          <p className="text-sm text-muted-foreground">{emptyText}</p>
+          <p className="font-semibold">{t("No results")}</p>
+          <p className="text-sm text-muted-foreground">{t(emptyText)}</p>
           <Button variant="outline" onClick={() => { setQuery(""); setChip("All"); }}>
-            Clear filters
+            {t("Clear filters")}
           </Button>
         </div>
       ) : (
@@ -234,7 +238,7 @@ export function DataTable({ columns, rows, filterKey, searchPlaceholder = "Searc
                           onClick={() => toggleSort(c.key)}
                           className={cn("inline-flex h-8 items-center gap-1.5 rounded-md hover:text-foreground", active && "text-foreground", c.numeric && "flex-row-reverse")}
                         >
-                          {c.label}
+                          {t(c.label)}
                           <Icon className="size-3.5" aria-hidden />
                         </button>
                       </th>
@@ -272,7 +276,7 @@ export function DataTable({ columns, rows, filterKey, searchPlaceholder = "Searc
                   {plainCols.map((c) => (
                     // long values (routes, tasks) get the full row and wrap instead of being cut off
                     <div key={c.key} className={cn("min-w-0", String(r[c.key] ?? "").length > 16 && "col-span-2")}>
-                      <dt className="text-xs text-muted-foreground">{c.label}</dt>
+                      <dt className="text-xs text-muted-foreground">{t(c.label)}</dt>
                       <dd className="break-words font-medium">{cell(r, c)}</dd>
                     </div>
                   ))}
@@ -283,7 +287,7 @@ export function DataTable({ columns, rows, filterKey, searchPlaceholder = "Searc
           {visible.length > mobileLimit && (
             <div className="border-t p-3 md:hidden">
               <Button variant="outline" className="h-11 w-full" onClick={() => setMobileLimit((n) => n + MOBILE_PAGE)}>
-                Show {Math.min(MOBILE_PAGE, visible.length - mobileLimit)} more ({visible.length - mobileLimit} left)
+                {t("Show {n} more ({left} left)", { n: Math.min(MOBILE_PAGE, visible.length - mobileLimit), left: visible.length - mobileLimit })}
               </Button>
             </div>
           )}
@@ -291,7 +295,7 @@ export function DataTable({ columns, rows, filterKey, searchPlaceholder = "Searc
       )}
 
       <p className="border-t px-4 py-2.5 text-xs text-muted-foreground md:px-5" aria-live="polite">
-        Showing <span className="num">{visible.length}</span> of <span className="num">{rows.length}</span>
+        {t("Showing {n} of {m}", { n: visible.length, m: rows.length })}
       </p>
     </Panel>
   );

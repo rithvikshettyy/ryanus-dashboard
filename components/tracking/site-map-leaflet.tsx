@@ -4,11 +4,16 @@ import { useEffect, useRef, useState } from "react";
 import L from "leaflet";
 import "leaflet/dist/leaflet.css";
 import { Layers, LocateFixed, Minus, Plus } from "lucide-react";
+import { useT } from "@/components/i18n-provider";
 import { CLASS_CONFIG } from "@/lib/constants";
 import { MAP_H, MAP_W, ROUTES, SITES, splitRoute, toGps, type Trip, type TruckFlag } from "@/lib/tracking";
 import { cn } from "@/lib/utils";
 
 type Basemap = "satellite" | "street";
+
+const STATUS_LABEL: Record<Trip["status"], string> = {
+  loading: "Loading", hauling: "Hauling", dumping: "Dumping", returning: "Returning", "no-signal": "No signal", completed: "Completed",
+};
 
 // Free tile servers, no API key. Attribution is required by both and shown in the map corner.
 const TILES: Record<Basemap, { url: string; attribution: string; maxZoom: number }> = {
@@ -30,7 +35,7 @@ const ll = (x: number, y: number): L.LatLngTuple => {
 };
 const esc = (s: string) => s.replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" })[c] ?? c);
 
-function selectedIcon(t: Trip): L.DivIcon {
+function selectedIcon(t: Trip, name: string): L.DivIcon {
   const colour = t.status === "no-signal" ? "#6b7280" : "#2f6bf0";
   return L.divIcon({
     className: "truck-selected",
@@ -41,7 +46,7 @@ function selectedIcon(t: Trip): L.DivIcon {
         <span style="position:absolute;left:-14px;top:-14px;width:28px;height:28px;border-radius:50%;background:${colour};border:3px solid #fff;box-shadow:0 1px 4px rgba(0,0,0,.4);display:flex;align-items:center;justify-content:center">
           <svg width="14" height="14" viewBox="-7 -7 14 14" style="transform:rotate(${t.heading}deg)"><path d="M-5 -5.5 L7 0 L-5 5.5 L-2 0 Z" fill="#fff"/></svg>
         </span>
-        <span style="position:absolute;left:0;top:-38px;transform:translateX(-50%);white-space:nowrap;font:700 12px system-ui;color:#fff;background:rgba(17,24,39,.85);padding:2px 7px;border-radius:6px">${esc(t.truck)}</span>
+        <span style="position:absolute;left:0;top:-38px;transform:translateX(-50%);white-space:nowrap;font:700 12px system-ui;color:#fff;background:rgba(17,24,39,.85);padding:2px 7px;border-radius:6px">${esc(name)}</span>
       </div>`,
   });
 }
@@ -61,6 +66,8 @@ export function SiteMapLeaflet({
   onSelect: (truck: string) => void;
   flags: Record<string, TruckFlag>;
 }) {
+  const tr = useT();
+  const trRef = useRef(tr); // SiteMap is re-mounted (key) when the language changes, so this never goes stale
   const el = useRef<HTMLDivElement>(null);
   const map = useRef<L.Map | null>(null);
   const tiles = useRef<L.TileLayer | null>(null);
@@ -101,7 +108,7 @@ export function SiteMapLeaflet({
     // sites
     Object.values(SITES).forEach((s) => {
       L.circleMarker(ll(s.x, s.y), { radius: 6, color: "#fff", weight: 2, fillColor: "#111827", fillOpacity: 1, interactive: false })
-        .bindTooltip(s.label, { permanent: true, direction: "top", offset: [0, -6], className: "site-label" })
+        .bindTooltip(trRef.current(s.label), { permanent: true, direction: "top", offset: [0, -6], className: "site-label" })
         .addTo(m);
     });
 
@@ -146,7 +153,7 @@ export function SiteMapLeaflet({
       if (!entry) {
         const dot = L.circleMarker(pos, { radius: 7, weight: 2.5, color: "#fff", fillOpacity: 1 }).addTo(m);
         dot.on("click", () => onSelectRef.current(t.truck));
-        dot.bindTooltip(t.truck, { direction: "top", offset: [0, -6] });
+        dot.bindTooltip(trRef.current(t.truck), { direction: "top", offset: [0, -6] });
         entry = { dot, ring: null };
         L_.trucks.set(t.truck, entry);
       }
@@ -190,9 +197,9 @@ export function SiteMapLeaflet({
     // selected truck
     const pos = ll(selected.pos.x, selected.pos.y);
     if (!L_.selected) {
-      L_.selected = L.marker(pos, { icon: selectedIcon(selected), zIndexOffset: 1000, keyboard: false }).addTo(m);
+      L_.selected = L.marker(pos, { icon: selectedIcon(selected, trRef.current(selected.truck)), zIndexOffset: 1000, keyboard: false }).addTo(m);
     } else {
-      L_.selected.setLatLng(pos).setIcon(selectedIcon(selected));
+      L_.selected.setLatLng(pos).setIcon(selectedIcon(selected, trRef.current(selected.truck)));
     }
   }, [trips, selected, flags, ready]);
 
@@ -210,7 +217,7 @@ export function SiteMapLeaflet({
       <div
         ref={el}
         role="region"
-        aria-label={`Satellite map. ${selected.truck} is ${selected.status.replace("-", " ")} on the route from ${selected.from} to ${selected.to}.`}
+        aria-label={tr("Satellite map. {truck} is {status} on the route from {from} to {to}.", { truck: selected.truck, status: tr(STATUS_LABEL[selected.status]), from: selected.from, to: selected.to })}
         className="aspect-[5/3] min-h-[320px] w-full"
       />
 
@@ -219,31 +226,31 @@ export function SiteMapLeaflet({
           <span className="absolute inline-flex size-full animate-ping rounded-full bg-productive opacity-60" />
           <span className="relative inline-flex size-2 rounded-full bg-productive" />
         </span>
-        Live GPS · {trips.length} trucks on site
+        {tr("Live GPS · {n} trucks on site", { n: trips.length })}
       </div>
 
       <div className="absolute bottom-7 right-3 z-[500] flex flex-col items-center gap-2">
         <button
           type="button"
-          aria-label={basemap === "satellite" ? "Switch to street map" : "Switch to satellite"}
-          title={basemap === "satellite" ? "Street map" : "Satellite"}
+          aria-label={basemap === "satellite" ? tr("Switch to street map") : tr("Switch to satellite")}
+          title={basemap === "satellite" ? tr("Street map") : tr("Satellite")}
           onClick={() => setBasemap((b) => (b === "satellite" ? "street" : "satellite"))}
           className="flex size-10 items-center justify-center rounded-xl border bg-card shadow-sm transition-colors hover:bg-muted"
         >
           <Layers className="size-4" />
         </button>
         <div className="flex flex-col overflow-hidden rounded-xl border bg-card shadow-sm">
-          <button type="button" aria-label="Zoom in" onClick={() => map.current?.zoomIn()} className="flex size-10 items-center justify-center transition-colors hover:bg-muted">
+          <button type="button" aria-label={tr("Zoom in")} onClick={() => map.current?.zoomIn()} className="flex size-10 items-center justify-center transition-colors hover:bg-muted">
             <Plus className="size-4" />
           </button>
-          <button type="button" aria-label="Zoom out" onClick={() => map.current?.zoomOut()} className="flex size-10 items-center justify-center border-t transition-colors hover:bg-muted">
+          <button type="button" aria-label={tr("Zoom out")} onClick={() => map.current?.zoomOut()} className="flex size-10 items-center justify-center border-t transition-colors hover:bg-muted">
             <Minus className="size-4" />
           </button>
         </div>
         <button
           type="button"
-          aria-label={`Locate ${selected.truck}`}
-          title={`Zoom to ${selected.truck}`}
+          aria-label={tr("Locate {truck}", { truck: selected.truck })}
+          title={tr("Zoom to {truck}", { truck: selected.truck })}
           onClick={() => map.current?.flyTo(ll(selected.pos.x, selected.pos.y), 17, { duration: 0.8 })}
           className={cn("flex size-11 items-center justify-center rounded-full bg-primary text-primary-foreground shadow-md transition-transform hover:scale-105")}
         >

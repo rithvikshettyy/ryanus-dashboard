@@ -1,6 +1,7 @@
 "use client";
 
 import { ChevronDown, Search, X } from "lucide-react";
+import { useT } from "@/components/i18n-provider";
 import { Button } from "@/components/ui/button";
 import { Panel } from "@/components/ui/panel";
 import { Segmented } from "@/components/ui/segmented";
@@ -23,13 +24,14 @@ export function AlertFiltersBar({
   onClear: () => void;
   counts: Record<StatusFilter, number>;
 }) {
+  const tr = useT();
   function toggleSeverity(s: Severity) {
     const has = filters.severity.includes(s);
     onChange({ severity: has ? filters.severity.filter((x) => x !== s) : [...filters.severity, s] });
   }
 
   return (
-    <Panel aria-label="Alert filters" className="space-y-3">
+    <Panel aria-label={tr("Alert filters")} className="space-y-3">
       <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-[minmax(220px,1.3fr)_auto_1fr_1fr]">
         <div className="relative">
           <Search className="pointer-events-none absolute left-3 top-3 size-4 text-muted-foreground" aria-hidden />
@@ -37,13 +39,13 @@ export function AlertFiltersBar({
             type="search"
             value={filters.search}
             onChange={(e) => onChange({ search: e.target.value })}
-            placeholder="Search equipment, alert, location"
-            aria-label="Search alerts"
+            placeholder={tr("Search equipment, alert, location")}
+            aria-label={tr("Search alerts")}
             className="h-10 w-full rounded-lg border bg-card pl-9 pr-3 text-sm outline-none transition-colors placeholder:text-muted-foreground hover:bg-muted/50 focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/30"
           />
         </div>
 
-        <div role="group" aria-label="Severity" className="flex flex-wrap gap-2">
+        <div role="group" aria-label={tr("Severity")} className="flex flex-wrap gap-2">
           {(Object.keys(SEVERITY_CONFIG) as Severity[]).map((s) => {
             const cfg = SEVERITY_CONFIG[s];
             const on = filters.severity.includes(s);
@@ -59,7 +61,7 @@ export function AlertFiltersBar({
                 )}
               >
                 <cfg.icon className={cn("size-4", !on && cfg.text)} aria-hidden />
-                {cfg.label}
+                {tr(cfg.label)}
               </button>
             );
           })}
@@ -67,14 +69,14 @@ export function AlertFiltersBar({
 
         <div className="relative">
           <select
-            aria-label="Alert type"
+            aria-label={tr("Alert type")}
             value={filters.type}
             onChange={(e) => onChange({ type: e.target.value as AlertType | "all" })}
             className={SELECT}
           >
-            <option value="all">All alert types</option>
+            <option value="all">{tr("All alert types")}</option>
             {(Object.keys(ALERT_TYPE_CONFIG) as AlertType[]).map((t) => (
-              <option key={t} value={t}>{ALERT_TYPE_CONFIG[t].label}</option>
+              <option key={t} value={t}>{tr(ALERT_TYPE_CONFIG[t].label)}</option>
             ))}
           </select>
           <ChevronDown className="pointer-events-none absolute right-3 top-3 size-4 text-muted-foreground" aria-hidden />
@@ -82,14 +84,14 @@ export function AlertFiltersBar({
 
         <div className="relative">
           <select
-            aria-label="Equipment type"
+            aria-label={tr("Equipment type")}
             value={filters.equipment}
             onChange={(e) => onChange({ equipment: e.target.value as EquipmentType | "all" })}
             className={SELECT}
           >
-            <option value="all">All equipment</option>
+            <option value="all">{tr("All equipment")}</option>
             {(Object.keys(EQUIPMENT_CONFIG) as EquipmentType[]).map((t) => (
-              <option key={t} value={t}>{EQUIPMENT_CONFIG[t].label}</option>
+              <option key={t} value={t}>{tr(EQUIPMENT_CONFIG[t].label)}</option>
             ))}
           </select>
           <ChevronDown className="pointer-events-none absolute right-3 top-3 size-4 text-muted-foreground" aria-hidden />
@@ -123,7 +125,7 @@ export function AlertFiltersBar({
           />
           {hasActiveFilters(filters) && (
             <Button variant="ghost" className="h-10 gap-1.5" onClick={onClear}>
-              <X /> Clear
+              <X /> {tr("Clear")}
             </Button>
           )}
         </div>

@@ -3,6 +3,7 @@
 import { useState } from "react";
 import Link from "next/link";
 import { ChevronRight, Users } from "lucide-react";
+import { useT } from "@/components/i18n-provider";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { STATUS_CONFIG } from "@/components/tracking/trip-status";
 import { useNow } from "@/hooks/use-now";
@@ -23,20 +24,21 @@ function Avatar({ user, className = "size-8 text-[11px]" }: { user: ActiveUser; 
 
 /** Avatar stack of who is on shift right now. Click it for the full list. */
 export function ActiveUsers({ serverNow }: { serverNow: number }) {
+  const t = useT();
   const [open, setOpen] = useState(false);
   const now = useNow(serverNow, 15_000);
   const total = ACTIVE_USERS.length;
   const shown = ACTIVE_USERS.slice(0, 4);
 
   // What each operator is doing right now, from the same simulation as the tracking map
-  const trips = new Map(currentTrips(now).map((t) => [t.truck, t]));
+  const trips = new Map(currentTrips(now).map((x) => [x.truck, x]));
   const staff = ACTIVE_USERS.filter((u) => u.role !== "Operator");
   const operators = ACTIVE_USERS.filter((u) => u.role === "Operator");
 
   return (
     <Popover open={open} onOpenChange={setOpen}>
       <PopoverTrigger
-        aria-label={`${total} people active on site. Show list`}
+        aria-label={t("{n} people active on site. Show list", { n: total })}
         className="hidden h-10 items-center rounded-lg px-1.5 transition-colors hover:bg-muted aria-expanded:bg-muted sm:flex"
       >
         <span className="hidden items-center sm:flex">
@@ -59,30 +61,30 @@ export function ActiveUsers({ serverNow }: { serverNow: number }) {
 
       <PopoverContent align="end" sideOffset={8} className="w-[min(24rem,calc(100vw-1rem))] gap-0 rounded-2xl p-0">
         <div className="flex items-center gap-2 border-b px-4 py-3">
-          <h2 className="text-sm font-semibold">Active now</h2>
-          <span className="num rounded-md bg-good-bg px-1.5 py-0.5 text-xs font-semibold text-good">{total} online</span>
-          <p className="ml-auto text-xs text-muted-foreground">Anonymous</p>
+          <h2 className="text-sm font-semibold">{t("Active now")}</h2>
+          <span className="num rounded-md bg-good-bg px-1.5 py-0.5 text-xs font-semibold text-good">{t("{n} online", { n: total })}</span>
+          <p className="ml-auto text-xs text-muted-foreground">{t("Anonymous")}</p>
         </div>
 
         <div className="max-h-[min(28rem,65vh)] overflow-y-auto">
           <p className="px-4 pb-1 pt-3 text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">
-            Control room ({staff.length})
+            {t("Control room ({n})", { n: staff.length })}
           </p>
           <ul>
             {staff.map((u) => (
               <li key={u.id} className="flex items-center gap-3 px-4 py-2">
                 <Avatar user={u} className="size-9 text-xs" />
                 <span className="min-w-0 flex-1">
-                  <span className="block truncate text-sm font-medium">{u.alias}</span>
-                  <span className="block truncate text-xs text-muted-foreground">{u.role}</span>
+                  <span className="block truncate text-sm font-medium">{t(u.alias)}</span>
+                  <span className="block truncate text-xs text-muted-foreground">{t(u.role)}</span>
                 </span>
-                <span className="num text-xs text-muted-foreground">since {u.since}</span>
+                <span className="num text-xs text-muted-foreground">{t("since {time}", { time: u.since })}</span>
               </li>
             ))}
           </ul>
 
           <p className="px-4 pb-1 pt-3 text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">
-            Operators ({operators.length})
+            {t("Operators ({n})", { n: operators.length })}
           </p>
           <ul className="pb-2">
             {operators.map((u) => {
@@ -91,13 +93,13 @@ export function ActiveUsers({ serverNow }: { serverNow: number }) {
                 <>
                   <Avatar user={u} className="size-9 text-xs" />
                   <span className="min-w-0 flex-1">
-                    <span className="block truncate text-sm font-medium">{u.alias}</span>
+                    <span className="block truncate text-sm font-medium">{t(u.alias)}</span>
                     <span className="block truncate text-xs text-muted-foreground">
-                      {u.equipment}
-                      {trip ? ` · ${STATUS_CONFIG[trip.status].label}` : u.equipment === "Excavator 04" ? " · Loading" : " · Spreading"}
+                      {u.equipment && t(u.equipment)}
+                      {trip ? ` · ${t(STATUS_CONFIG[trip.status].label)}` : u.equipment === "Excavator 04" ? ` · ${t("Loading")}` : ` · ${t("Spreading")}`}
                     </span>
                   </span>
-                  <span className="num text-xs text-muted-foreground">since {u.since}</span>
+                  <span className="num text-xs text-muted-foreground">{t("since {time}", { time: u.since })}</span>
                   {trip && <ChevronRight className="size-4 text-muted-foreground" aria-hidden />}
                 </>
               );
@@ -108,7 +110,7 @@ export function ActiveUsers({ serverNow }: { serverNow: number }) {
                       href={`/dashboard?tab=tracking&truck=${encodeURIComponent(u.equipment!)}`}
                       onClick={() => setOpen(false)}
                       className="flex items-center gap-3 px-4 py-2 transition-colors hover:bg-muted/60"
-                      title={`Track ${u.equipment} on the map`}
+                      title={t("Track {name} on the map", { name: u.equipment ?? "" })}
                     >
                       {body}
                     </Link>
@@ -122,7 +124,7 @@ export function ActiveUsers({ serverNow }: { serverNow: number }) {
         </div>
 
         <p className="border-t px-4 py-2.5 text-xs text-muted-foreground">
-          Names are hidden. Click an operator to follow their truck on the live map.
+          {t("Names are hidden. Click an operator to follow their truck on the live map.")}
         </p>
       </PopoverContent>
     </Popover>

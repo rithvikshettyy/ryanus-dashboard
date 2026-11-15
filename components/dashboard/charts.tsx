@@ -11,14 +11,17 @@ import { Panel, PanelHeader } from "@/components/ui/panel";
 import { Segmented } from "@/components/ui/segmented";
 import type { DashboardData, ClassSummary } from "@/lib/analytics";
 import { CLASS_CONFIG } from "@/lib/constants";
+import { useT } from "@/components/i18n-provider";
 import { fmt0, fmtPct } from "@/lib/format";
+import type { TFn } from "@/lib/i18n";
 import type { VehicleClass } from "@/lib/types";
 
-function classConfig(classes: VehicleClass[]): ChartConfig {
-  return Object.fromEntries(classes.map((c) => [c, { label: CLASS_CONFIG[c].label, color: CLASS_CONFIG[c].color }]));
+function classConfig(classes: VehicleClass[], t: TFn): ChartConfig {
+  return Object.fromEntries(classes.map((c) => [c, { label: t(CLASS_CONFIG[c].label), color: CLASS_CONFIG[c].color }]));
 }
 
-const shortLabel = (l: string) => l.replace(" Nov", "").replace(" · ", "·");
+// "13 Nov · A" (or "13 नव॰ · A") -> "13·A": drop the month word so axis ticks stay short in either language
+const shortLabel = (l: string) => l.replace(/^(\d+)\s+\S+\s+·\s+/, "$1·");
 const axisProps = { tickLine: false, axisLine: false, tickMargin: 8 } as const;
 
 /* ---------- Shared: one series chart that can be drawn as line, bar, area or pie ---------- */
@@ -34,7 +37,8 @@ interface SeriesProps {
 }
 
 function SeriesChart({ data, classes, type, yFormat = fmt0, yWidth = 52 }: SeriesProps) {
-  const config = classConfig(classes);
+  const t = useT();
+  const config = classConfig(classes, t);
   const cls = "aspect-auto h-72 w-full";
 
   if (type === "pie") {
@@ -151,6 +155,7 @@ const TREND_META: Record<TrendMetric, { label: string; unit: string }> = {
 };
 
 export function TrendChart({ data, classes }: { data: DashboardData["trend"]; classes: VehicleClass[] }) {
+  const t = useT();
   const [metric, setMetric] = useState<TrendMetric>("payloadT");
   const [type, setType] = useState<ChartType>("line");
   const meta = TREND_META[metric];
@@ -158,11 +163,11 @@ export function TrendChart({ data, classes }: { data: DashboardData["trend"]; cl
     <Panel className="flex flex-col">
       <PanelHeader
         icon={TrendingUp}
-        title={`${meta.label} trend by shift`}
+        title={t("{metric} trend by shift", { metric: t(meta.label) })}
         description={
           type === "pie"
-            ? `Share of total ${meta.label.toLowerCase()} (${meta.unit}) over the period, by class.`
-            : `Unit: ${meta.unit} per shift (A 06 to 14, B 14 to 22, C 22 to 06).`
+            ? t("Share of total {metric} ({unit}) over the period, by class.", { metric: t(meta.label).toLowerCase(), unit: t(meta.unit) })
+            : t("Unit: {unit} per shift (A 06 to 14, B 14 to 22, C 22 to 06).", { unit: t(meta.unit) })
         }
         actions={
           <div className="flex flex-wrap items-center gap-2">
@@ -183,6 +188,7 @@ export function TrendChart({ data, classes }: { data: DashboardData["trend"]; cl
 
 /* ---------- 2. Share of the work (100% bars or donuts) ---------- */
 export function ShareChart({ share, classes }: { share: DashboardData["share"]; classes: VehicleClass[] }) {
+  const t = useT();
   const [type, setType] = useState<ChartType>("bar");
   const rows = share.map((s) => ({
     metric: s.metric,
@@ -198,11 +204,11 @@ export function ShareChart({ share, classes }: { share: DashboardData["share"]; 
       />
       {type === "pie" ? (
         <MiniDonuts
-          config={classConfig(classes)}
+          config={classConfig(classes, t)}
           items={share.map((s) => ({ title: s.metric, slices: s.values.map((v) => ({ key: v.cls, value: v.value })) }))}
         />
       ) : (
-        <ChartContainer config={classConfig(classes)} className="aspect-auto h-72 w-full">
+        <ChartContainer config={classConfig(classes, t)} className="aspect-auto h-72 w-full">
           <BarChart data={rows} layout="vertical" stackOffset="expand" margin={{ left: 8, right: 12 }} accessibilityLayer>
             <CartesianGrid horizontal={false} />
             <YAxis dataKey="metric" type="category" {...axisProps} width={112} />
@@ -221,6 +227,7 @@ export function ShareChart({ share, classes }: { share: DashboardData["share"]; 
 
 /* ---------- 3. Fuel by shift ---------- */
 export function FuelByShiftChart({ data, classes }: { data: DashboardData["trend"]["fuelL"]; classes: VehicleClass[] }) {
+  const t = useT();
   const [type, setType] = useState<ChartType>("bar");
   return (
     <Panel className="flex flex-col">
@@ -229,8 +236,8 @@ export function FuelByShiftChart({ data, classes }: { data: DashboardData["trend
         title="Fuel consumption by shift"
         description={
           type === "pie"
-            ? "Share of total litres (L) burned over the period, by class."
-            : "Litres (L) burned per shift. Axis: 15·A = 15 Nov, shift A."
+            ? t("Share of total litres (L) burned over the period, by class.")
+            : t("Litres (L) burned per shift. Axis: 15·A = 15 Nov, shift A.")
         }
         actions={<ChartTypePicker value={type} onChange={setType} types={CHART_TYPES_ALL} />}
       />
@@ -241,13 +248,14 @@ export function FuelByShiftChart({ data, classes }: { data: DashboardData["trend
 
 /* ---------- 4. Fuel efficiency by shift (L/t vs L/km) ---------- */
 export function FuelEfficiencyChart({ trend, classes }: { trend: DashboardData["trend"]; classes: VehicleClass[] }) {
+  const t = useT();
   const [metric, setMetric] = useState<"fuelPerTonne" | "fuelPerKm">("fuelPerTonne");
   const [type, setType] = useState<ChartType>("line");
   return (
     <Panel className="flex flex-col">
       <PanelHeader
         icon={BarChart3}
-        title={`Fuel per ${metric === "fuelPerTonne" ? "tonne" : "km"} by shift`}
+        title={t(metric === "fuelPerTonne" ? "Fuel per tonne by shift" : "Fuel per km by shift")}
         description="Lower is better. A rising line means worse efficiency."
         actions={
           <div className="flex flex-wrap items-center gap-2">
@@ -277,7 +285,12 @@ const TIME_CONFIG: ChartConfig = {
 };
 
 export function TimeSplitChart({ split }: { split: DashboardData["timeSplit"] }) {
+  const t = useT();
   const [type, setType] = useState<ChartType>("bar");
+  // Labels translated here (module-level config is English)
+  const timeConfig: ChartConfig = Object.fromEntries(
+    Object.entries(TIME_CONFIG).map(([k, c]) => [k, { ...c, label: typeof c.label === "string" ? t(c.label) : c.label }]),
+  );
   return (
     <Panel className="flex flex-col">
       <PanelHeader
@@ -288,7 +301,7 @@ export function TimeSplitChart({ split }: { split: DashboardData["timeSplit"] })
       />
       {type === "pie" ? (
         <MiniDonuts
-          config={TIME_CONFIG}
+          config={timeConfig}
           items={split.map((s) => ({
             title: s.label,
             slices: [
@@ -299,7 +312,7 @@ export function TimeSplitChart({ split }: { split: DashboardData["timeSplit"] })
           }))}
         />
       ) : (
-        <ChartContainer config={TIME_CONFIG} className="aspect-auto h-56 w-full">
+        <ChartContainer config={timeConfig} className="aspect-auto h-56 w-full">
           <BarChart data={split} layout="vertical" stackOffset="expand" margin={{ left: 8, right: 12 }} accessibilityLayer>
             <CartesianGrid horizontal={false} />
             <YAxis dataKey="label" type="category" {...axisProps} width={104} />
@@ -319,7 +332,7 @@ export function TimeSplitChart({ split }: { split: DashboardData["timeSplit"] })
             <li key={s.cls} className="flex flex-col gap-0.5 rounded-lg bg-muted/60 px-3 py-1.5 sm:flex-row sm:items-center sm:justify-between">
               <span className="text-muted-foreground">{s.label}</span>
               <span className="num">
-                {fmtPct(total ? s.productive / total : 0)} productive · {fmtPct(total ? s.breakdown / total : 0)} breakdown
+                {t("{p} productive · {b} breakdown", { p: fmtPct(total ? s.productive / total : 0), b: fmtPct(total ? s.breakdown / total : 0) })}
               </span>
             </li>
           );

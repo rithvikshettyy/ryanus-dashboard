@@ -4,6 +4,7 @@ import {
   type LucideIcon,
 } from "lucide-react";
 import alertsJson from "@/data/alerts.json";
+import { makeT, type TFn } from "./i18n";
 import type { Alert, AlertType, EquipmentType, RawAlert, Severity } from "./types";
 
 const RAW = alertsJson as RawAlert[];
@@ -53,10 +54,10 @@ export function breachRatio(a: Alert): number | null {
   return breach === "above" ? actual / threshold - 1 : 1 - actual / threshold;
 }
 
-export function breachLabel(a: Alert): string {
+export function breachLabel(a: Alert, t: TFn = makeT("en")): string {
   const r = breachRatio(a);
-  if (r === null) return `${a.metric.actual} ${a.metric.unit}`;
+  if (r === null) return `${a.metric.actual} ${t(a.metric.unit)}`;
   const pct = Math.round(r * 100);
-  if (a.type === "underload") return `${pct}% under expected`;
-  return a.metric.breach === "above" ? `+${pct}% over limit` : `${pct}% below minimum`;
+  if (a.type === "underload") return t("{pct}% under expected", { pct });
+  return a.metric.breach === "above" ? t("+{pct}% over limit", { pct }) : t("{pct}% below minimum", { pct });
 }

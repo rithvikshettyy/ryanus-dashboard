@@ -1,4 +1,4 @@
-import type { Metadata } from "next";
+import { getT, titleMeta } from "@/lib/i18n/server";
 import { connection } from "next/server";
 import { ArrowRight, Lightbulb, Route as RouteIcon, Timer, Truck } from "lucide-react";
 import { ModulePage } from "@/components/modules/module-page";
@@ -10,7 +10,7 @@ import { routePlans, type RoutePlan } from "@/lib/fleet";
 import { MAP_H, MAP_W } from "@/lib/tracking";
 import { cn } from "@/lib/utils";
 
-export const metadata: Metadata = { title: "Route planning" };
+export const generateMetadata = titleMeta("Route planning");
 
 const LOAD_STYLE: Record<RoutePlan["load"], string> = {
   Busy: "bg-bad-bg text-bad",
@@ -18,10 +18,10 @@ const LOAD_STYLE: Record<RoutePlan["load"], string> = {
   Light: "bg-info-bg text-info",
 };
 
-function RoutePreview({ r }: { r: RoutePlan }) {
+function RoutePreview({ r, label }: { r: RoutePlan; label: string }) {
   const line = r.points.map((p) => p.join(",")).join(" ");
   return (
-    <svg viewBox={`0 0 ${MAP_W} ${MAP_H}`} className="h-36 w-full rounded-xl bg-muted/60" role="img" aria-label={`Sketch of route ${r.id}`}>
+    <svg viewBox={`0 0 ${MAP_W} ${MAP_H}`} className="h-36 w-full rounded-xl bg-muted/60" role="img" aria-label={label}>
       <polyline points={line} fill="none" stroke="var(--primary)" strokeWidth={9} strokeLinecap="round" strokeLinejoin="round" opacity={0.85} />
       <circle cx={r.fromXY[0]} cy={r.fromXY[1]} r={22} fill="var(--productive)" />
       <circle cx={r.toXY[0]} cy={r.toXY[1]} r={22} fill="var(--chart-2)" />
@@ -31,6 +31,7 @@ function RoutePreview({ r }: { r: RoutePlan }) {
 
 export default async function RoutePlanningPage() {
   await connection();
+  const t = await getT();
   const plans = routePlans(currentTime());
   const busiest = [...plans].sort((a, b) => b.trucks / b.km - a.trucks / a.km)[0];
   const lightest = [...plans].sort((a, b) => a.trucks / a.km - b.trucks / b.km)[0];
@@ -53,8 +54,11 @@ export default async function RoutePlanningPage() {
           <Lightbulb className="size-[18px]" aria-hidden />
         </span>
         <p className="text-sm">
-          <span className="font-semibold">Suggestion:</span> {busiest.id} ({busiest.from} to {busiest.to}) carries {busiest.trucks} trucks over {fmt1(busiest.km)} km.
-          Moving one truck to {lightest.id} ({lightest.trucks} trucks over {fmt1(lightest.km)} km) would balance queues at the loading point.
+          <span className="font-semibold">{t("Suggestion:")}</span>{" "}
+          {t("{id} ({from} to {to}) carries {n} trucks over {km} km. Moving one truck to {id2} ({n2} trucks over {km2} km) would balance queues at the loading point.", {
+            id: busiest.id, from: busiest.from, to: busiest.to, n: busiest.trucks, km: fmt1(busiest.km),
+            id2: lightest.id, n2: lightest.trucks, km2: fmt1(lightest.km),
+          })}
         </p>
       </Panel>
 
@@ -64,31 +68,31 @@ export default async function RoutePlanningPage() {
             <div className="flex items-center gap-2">
               <span className="num flex size-9 items-center justify-center rounded-lg bg-primary text-sm font-semibold text-primary-foreground">{r.id}</span>
               <div className="min-w-0 flex-1">
-                <p className="truncate text-sm font-semibold">{r.material} haul</p>
-                <p className="text-xs text-muted-foreground">{fmt1(r.km)} km one way</p>
+                <p className="truncate text-sm font-semibold">{t("{material} haul", { material: r.material })}</p>
+                <p className="text-xs text-muted-foreground">{t("{km} km one way", { km: fmt1(r.km) })}</p>
               </div>
-              <span className={cn("rounded-md px-2 py-1 text-xs font-medium", LOAD_STYLE[r.load])}>{r.load}</span>
+              <span className={cn("rounded-md px-2 py-1 text-xs font-medium", LOAD_STYLE[r.load])}>{t(r.load)}</span>
             </div>
 
-            <RoutePreview r={r} />
+            <RoutePreview r={r} label={t("Sketch of route {id}", { id: r.id })} />
 
             <p className="flex flex-wrap items-center gap-x-2 gap-y-1 text-sm font-medium">
-              <span className="min-w-0 break-words">{r.from}</span>
+              <span className="min-w-0 break-words">{t(r.from)}</span>
               <ArrowRight className="size-4 shrink-0 text-muted-foreground" aria-hidden />
-              <span className="min-w-0 break-words">{r.to}</span>
+              <span className="min-w-0 break-words">{t(r.to)}</span>
             </p>
 
             <dl className="grid grid-cols-3 gap-2 border-t pt-3 text-sm">
               <div>
-                <dt className="text-xs text-muted-foreground">Trucks</dt>
+                <dt className="text-xs text-muted-foreground">{t("Trucks")}</dt>
                 <dd className="num font-semibold">{r.trucks}</dd>
               </div>
               <div>
-                <dt className="text-xs text-muted-foreground">Cycle</dt>
+                <dt className="text-xs text-muted-foreground">{t("Cycle")}</dt>
                 <dd className="num font-semibold">{fmt1(r.cycleMin)} min</dd>
               </div>
               <div>
-                <dt className="text-xs text-muted-foreground">Trips / h</dt>
+                <dt className="text-xs text-muted-foreground">{t("Trips / h")}</dt>
                 <dd className="num font-semibold">{fmt1(r.tripsPerHour)}</dd>
               </div>
             </dl>

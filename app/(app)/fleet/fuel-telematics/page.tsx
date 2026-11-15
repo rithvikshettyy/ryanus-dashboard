@@ -1,4 +1,4 @@
-import type { Metadata } from "next";
+import { titleMeta } from "@/lib/i18n/server";
 import { connection } from "next/server";
 import { Fuel, Gauge, IndianRupee, SignalLow } from "lucide-react";
 import { DataTable } from "@/components/modules/data-table";
@@ -9,7 +9,7 @@ import { fmt0, fmt2, fmtINR } from "@/lib/format";
 import { fuelRows, fuelStats } from "@/lib/fleet";
 import type { TableColumn } from "@/lib/table";
 
-export const metadata: Metadata = { title: "Fuel & telematics" };
+export const generateMetadata = titleMeta("Fuel & telematics");
 
 const COLUMNS: TableColumn[] = [
   { key: "vehicle", label: "Vehicle", primary: true, sub: true },

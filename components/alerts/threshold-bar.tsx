@@ -1,12 +1,17 @@
+"use client";
+
+import { useT } from "@/components/i18n-provider";
 import { ALERT_TYPE_CONFIG, SEVERITY_CONFIG, breachLabel } from "@/lib/alerts";
 import type { Alert } from "@/lib/types";
 import { cn } from "@/lib/utils";
 
 /** Actual vs threshold: filled bar = actual value, dark tick = threshold. */
 export function ThresholdBar({ alert, large = false }: { alert: Alert; large?: boolean }) {
-  const { actual, threshold, unit } = alert.metric;
+  const t = useT();
+  const { actual, threshold } = alert.metric;
+  const unit = t(alert.metric.unit);
   const sev = SEVERITY_CONFIG[alert.severity];
-  const limitWord = ALERT_TYPE_CONFIG[alert.type].limitWord;
+  const limitWord = t(ALERT_TYPE_CONFIG[alert.type].limitWord);
   const hasThreshold = threshold !== 0;
   const max = Math.max(actual, threshold) * 1.2 || 1;
   const thresholdPct = (threshold / max) * 100;
@@ -15,14 +20,14 @@ export function ThresholdBar({ alert, large = false }: { alert: Alert; large?: b
     <div
       className="space-y-2"
       role="img"
-      aria-label={`${actual} ${unit} actual versus ${limitWord.toLowerCase()} ${threshold} ${unit}. ${breachLabel(alert)}`}
+      aria-label={t("{actual} {unit} actual versus {limit} {threshold} {unit}. {breach}", { actual, unit, limit: limitWord.toLowerCase(), threshold, breach: breachLabel(alert, t) })}
     >
       <div className="flex items-end justify-between gap-2">
         <p className={cn("num font-semibold tracking-tight", large ? "text-3xl" : "text-2xl")}>
           {actual} <span className="text-sm font-normal text-muted-foreground">{unit}</span>
         </p>
         <span className={cn("num rounded-md px-2 py-1 text-xs font-semibold", sev.bg, sev.text)}>
-          {breachLabel(alert)}
+          {breachLabel(alert, t)}
         </span>
       </div>
 

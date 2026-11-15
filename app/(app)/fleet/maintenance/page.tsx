@@ -1,4 +1,4 @@
-import type { Metadata } from "next";
+import { titleMeta } from "@/lib/i18n/server";
 import { CalendarClock, IndianRupee, TriangleAlert, Wrench } from "lucide-react";
 import { DataTable } from "@/components/modules/data-table";
 import { ModulePage } from "@/components/modules/module-page";
@@ -7,7 +7,7 @@ import { fmtINR } from "@/lib/format";
 import { jobRows, jobStats } from "@/lib/fleet";
 import type { TableColumn } from "@/lib/table";
 
-export const metadata: Metadata = { title: "Maintenance & repairs" };
+export const generateMetadata = titleMeta("Maintenance & repairs");
 
 const COLUMNS: TableColumn[] = [
   { key: "order", label: "Work order", primary: true, sub: true },

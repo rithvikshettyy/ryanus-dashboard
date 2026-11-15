@@ -9,6 +9,7 @@ export interface Chunk {
   text: string; // one or two plain sentences with the facts
   href: string; // page where the user can see it
   keywords?: string; // extra words that should find this chunk
+  altTitle?: string; // the same title in the other language, so a title match works in either
 }
 
 export interface Hit {
@@ -17,6 +18,8 @@ export interface Hit {
 }
 
 const STOP = new Set([
+  // Hindi filler words
+  "का", "की", "के", "में", "को", "से", "है", "हैं", "था", "थी", "और", "या", "क्या", "कौन", "कौनसे", "कितने", "कितना", "कितनी", "मुझे", "दिखाओ", "दिखाइए", "बताओ", "बताइए", "अभी", "कृपया", "पर", "ने", "भी", "यह", "वह", "कैसे", "कहाँ", "कहां", "सभी", "कोई", "हो", "रहा", "रही", "रहे",
   "the", "a", "an", "is", "are", "was", "were", "of", "to", "in", "on", "for", "and", "or", "what", "which", "who",
   "how", "do", "does", "did", "i", "me", "my", "we", "can", "show", "tell", "give", "please", "there", "with", "at",
   "by", "from", "it", "this", "that", "be", "as", "now", "currently", "right", "many", "much", "any", "all", "list",
@@ -49,12 +52,37 @@ const SYNONYMS: Record<string, string[]> = {
   cost: ["price"],
   tonne: ["payload"],
   tonnes: ["payload"],
+  // Hindi query words -> the English words the index also holds
+  गंभीर: ["critical"],
+  चेतावनी: ["warning"],
+  अलर्ट: ["alert"],
+  ट्रक: ["truck"],
+  ईंधन: ["fuel"],
+  डीजल: ["fuel"],
+  सिग्नल: ["signal"],
+  ऑफलाइन: ["offline"],
+  रखरखाव: ["maintenance"],
+  मरम्मत: ["maintenance"],
+  शिपमेंट: ["shipment"],
+  देरी: ["delayed"],
+  विलंबित: ["delayed"],
+  चालक: ["driver"],
+  ड्राइवर: ["driver"],
+  संचालक: ["driver"],
+  मार्ग: ["route"],
+  रास्ता: ["route"],
+  स्थिति: ["status"],
+  खुले: ["open"],
+  खुला: ["open"],
+  टन: ["tonne"],
+  यात्रा: ["trip"],
+  यात्राएँ: ["trip"],
 };
 
 export function tokenize(input: string): string[] {
   return input
     .toLowerCase()
-    .replace(/[^a-z0-9₹.\s-]/g, " ")
+    .replace(/[^a-z0-9₹.\s\u0900-\u0963\u0966-\u097F-]/g, " ") // Latin, digits and Devanagari (minus the danda)
     .split(/[\s-]+/)
     .map((t) => t.replace(/^\.+|\.+$/g, ""))
     .filter(Boolean)
@@ -114,7 +142,7 @@ export function search(index: Index, query: string, limit = 3): Hit[] {
       score += w * (index.idf.get(t) ?? 0) * ((f * (K1 + 1)) / (f + K1 * (1 - B + (B * d.len) / index.avgLen)));
     }
     // asking for "Coal Dumper 03" by name should beat everything that merely mentions coal
-    if (q.includes(chunk.title.toLowerCase())) score += 8;
+    if (q.includes(chunk.title.toLowerCase()) || (chunk.altTitle && q.includes(chunk.altTitle.toLowerCase()))) score += 8;
     return { chunk, score };
   });
 

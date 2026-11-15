@@ -3,6 +3,7 @@ import { Panel, PanelHeader } from "@/components/ui/panel";
 import { HIGHER_IS_BETTER, metricValue, type ClassSummary, type MetricKey } from "@/lib/analytics";
 import { CLASS_CONFIG } from "@/lib/constants";
 import { fmt0, fmt2, fmtINR, fmtPct } from "@/lib/format";
+import { getT } from "@/lib/i18n/server";
 import { cn } from "@/lib/utils";
 
 const ROWS: { key: MetricKey; label: string; format: (n: number) => string }[] = [
@@ -15,7 +16,8 @@ const ROWS: { key: MetricKey; label: string; format: (n: number) => string }[] =
   { key: "fuelCost", label: "Fuel cost (₹)", format: fmtINR },
 ];
 
-export function EfficiencyTable({ summaries }: { summaries: ClassSummary[] }) {
+export async function EfficiencyTable({ summaries }: { summaries: ClassSummary[] }) {
+  const t = await getT();
   return (
     <Panel className="flex flex-col">
       <PanelHeader icon={Gauge} title="Efficiency scorecard" description="Ratios are computed from totals. Green marks the better class." />
@@ -23,7 +25,7 @@ export function EfficiencyTable({ summaries }: { summaries: ClassSummary[] }) {
         <table className="w-full min-w-[420px] text-sm">
           <thead>
             <tr className="border-b text-left text-xs text-muted-foreground">
-              <th className="px-1 py-2 font-medium">Metric</th>
+              <th className="px-1 py-2 font-medium">{t("Metric")}</th>
               {summaries.map((s) => (
                 <th key={s.cls} className="px-2 py-2 text-right font-medium">
                   <span className="inline-flex items-center gap-1.5">
@@ -40,7 +42,7 @@ export function EfficiencyTable({ summaries }: { summaries: ClassSummary[] }) {
               const best = HIGHER_IS_BETTER[r.key] ? Math.max(...vals) : Math.min(...vals);
               return (
                 <tr key={r.key} className="border-b last:border-0 transition-colors hover:bg-muted/60">
-                  <td className="px-1 py-3 text-muted-foreground">{r.label}</td>
+                  <td className="px-1 py-3 text-muted-foreground">{t(r.label)}</td>
                   {vals.map((v, i) => (
                     <td key={summaries[i].cls} className="px-2 py-3 text-right">
                       <span

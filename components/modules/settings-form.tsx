@@ -3,6 +3,8 @@
 import { useState } from "react";
 import { Bell, Gauge, MapPin, Save } from "lucide-react";
 import { toast } from "sonner";
+import { useT } from "@/components/i18n-provider";
+import { LanguageSwitcher } from "@/components/layout/language-switcher";
 import { Button } from "@/components/ui/button";
 import { Panel, PanelHeader } from "@/components/ui/panel";
 import { cn } from "@/lib/utils";
@@ -40,29 +42,30 @@ function Switch({ checked, onChange, label }: { checked: boolean; onChange: () =
 }
 
 export function SettingsForm() {
-  const [values, setValues] = useState(() => Object.fromEntries(THRESHOLDS.map((t) => [t.key, String(t.value)])));
-  const [toggles, setToggles] = useState(() => Object.fromEntries(TOGGLES.map((t) => [t.key, t.on])));
+  const t = useT();
+  const [values, setValues] = useState(() => Object.fromEntries(THRESHOLDS.map((x) => [x.key, String(x.value)])));
+  const [toggles, setToggles] = useState(() => Object.fromEntries(TOGGLES.map((x) => [x.key, x.on])));
   const [units, setUnits] = useState<"metric" | "imperial">("metric");
 
-  const save = () => toast.success("Settings saved");
+  const save = () => toast.success(t("Settings saved"));
 
   return (
     <div className="grid gap-4 lg:grid-cols-2">
       <Panel>
         <PanelHeader icon={Gauge} title="Alert thresholds" description="An alert fires when a reading crosses these limits" />
         <div className="space-y-3">
-          {THRESHOLDS.map((t) => (
-            <label key={t.key} className="flex items-center gap-3">
-              <span className="flex-1 text-sm font-medium">{t.label}</span>
+          {THRESHOLDS.map((x) => (
+            <label key={x.key} className="flex items-center gap-3">
+              <span className="flex-1 text-sm font-medium">{t(x.label)}</span>
               <span className="relative">
                 <input
                   type="number"
                   inputMode="numeric"
-                  value={values[t.key]}
-                  onChange={(e) => setValues((v) => ({ ...v, [t.key]: e.target.value }))}
+                  value={values[x.key]}
+                  onChange={(e) => setValues((v) => ({ ...v, [x.key]: e.target.value }))}
                   className="num h-10 w-28 rounded-lg border bg-background pl-3 pr-12 text-right text-sm outline-none focus-visible:ring-2 focus-visible:ring-primary/30"
                 />
-                <span className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 text-xs text-muted-foreground">{t.unit}</span>
+                <span className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 text-xs text-muted-foreground">{t(x.unit)}</span>
               </span>
             </label>
           ))}
@@ -72,13 +75,13 @@ export function SettingsForm() {
       <Panel>
         <PanelHeader icon={Bell} title="Notifications" description="What reaches you and how" />
         <ul className="divide-y">
-          {TOGGLES.map((t) => (
-            <li key={t.key} className="flex items-center gap-3 py-1.5">
+          {TOGGLES.map((x) => (
+            <li key={x.key} className="flex items-center gap-3 py-1.5">
               <span className="min-w-0 flex-1 text-sm">
-                <span className="block font-medium">{t.label}</span>
-                <span className="block text-xs text-muted-foreground">{t.text}</span>
+                <span className="block font-medium">{t(x.label)}</span>
+                <span className="block text-xs text-muted-foreground">{t(x.text)}</span>
               </span>
-              <Switch label={t.label} checked={toggles[t.key]} onChange={() => setToggles((s) => ({ ...s, [t.key]: !s[t.key] }))} />
+              <Switch label={t(x.label)} checked={toggles[x.key]} onChange={() => setToggles((s) => ({ ...s, [x.key]: !s[x.key] }))} />
             </li>
           ))}
         </ul>
@@ -87,11 +90,15 @@ export function SettingsForm() {
       <Panel>
         <PanelHeader icon={MapPin} title="Site and display" description="Applies to every screen" />
         <dl className="space-y-3 text-sm">
-          <div className="flex justify-between gap-4"><dt className="text-muted-foreground">Site</dt><dd className="font-medium">Faridabad, Haryana</dd></div>
-          <div className="flex justify-between gap-4"><dt className="text-muted-foreground">Time zone</dt><dd className="font-medium">IST (UTC+05:30)</dd></div>
+          <div className="flex justify-between gap-4"><dt className="text-muted-foreground">{t("Site")}</dt><dd className="font-medium">{t("Faridabad, Haryana")}</dd></div>
+          <div className="flex justify-between gap-4"><dt className="text-muted-foreground">{t("Time zone")}</dt><dd className="font-medium">{t("IST (UTC+05:30)")}</dd></div>
           <div className="flex items-center justify-between gap-4">
-            <dt className="text-muted-foreground">Units</dt>
-            <dd className="flex rounded-lg border p-0.5" role="group" aria-label="Units">
+            <dt className="text-muted-foreground">{t("Language")}</dt>
+            <dd className="w-52"><LanguageSwitcher /></dd>
+          </div>
+          <div className="flex items-center justify-between gap-4">
+            <dt className="text-muted-foreground">{t("Units")}</dt>
+            <dd className="flex rounded-lg border p-0.5" role="group" aria-label={t("Units")}>
               {(["metric", "imperial"] as const).map((u) => (
                 <button
                   key={u}
@@ -100,7 +107,7 @@ export function SettingsForm() {
                   aria-pressed={units === u}
                   className={cn("h-9 rounded-md px-3 text-sm font-medium capitalize", units === u ? "bg-primary text-primary-foreground" : "text-muted-foreground hover:bg-muted")}
                 >
-                  {u}
+                  {t(u)}
                 </button>
               ))}
             </dd>
@@ -110,7 +117,7 @@ export function SettingsForm() {
 
       <div className="flex items-end justify-end">
         <Button className="h-11 w-full gap-2 sm:w-auto" onClick={save}>
-          <Save className="size-4" aria-hidden /> Save changes
+          <Save className="size-4" aria-hidden /> {t("Save changes")}
         </Button>
       </div>
     </div>

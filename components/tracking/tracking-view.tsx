@@ -3,6 +3,7 @@
 import { useMemo, useState } from "react";
 import Image from "next/image";
 import { Crosshair } from "lucide-react";
+import { useLang, useT } from "@/components/i18n-provider";
 import { Panel } from "@/components/ui/panel";
 import { useNow } from "@/hooks/use-now";
 import { CLASS_CONFIG, CLASS_IMAGE } from "@/lib/constants";
@@ -22,6 +23,8 @@ export function TrackingView({
   flags: Record<string, TruckFlag>;
   initialTruck: string | null;
 }) {
+  const tr = useT();
+  const lang = useLang();
   // Ticks every second. Starts from the server time so the first paint matches the server HTML.
   const now = useNow(serverNow, 1000);
   const [selectedTruck, setSelectedTruck] = useState(initialTruck ?? "Coal Tipper 02"); // default: a truck with an open alert
@@ -50,15 +53,15 @@ export function TrackingView({
   const underload = flag?.label.startsWith("Underload") ?? false;
 
   const stats = [
-    { label: "Class", value: CLASS_CONFIG[selected.cls].label },
-    { label: "Distance", value: `${selected.distanceKm.toFixed(1)} km` },
+    { label: tr("Class"), value: tr(CLASS_CONFIG[selected.cls].label) },
+    { label: tr("Distance"), value: `${selected.distanceKm.toFixed(1)} km` },
     {
-      label: selected.status === "returning" ? "Back at loader in" : selected.status === "completed" ? "Arrived" : "Estimation",
-      value: selected.etaMin !== null ? `${selected.etaMin} min` : "Unknown",
-      sub: selected.arrivalAt && selected.status === "hauling" ? `Arrives ${fmtClock(selected.arrivalAt)} IST` : undefined,
+      label: tr(selected.status === "returning" ? "Back at loader in" : selected.status === "completed" ? "Arrived" : "Estimation"),
+      value: selected.etaMin !== null ? tr("{n} min", { n: selected.etaMin }) : tr("Unknown"),
+      sub: selected.arrivalAt && selected.status === "hauling" ? tr("Arrives {time} IST", { time: fmtClock(selected.arrivalAt) }) : undefined,
     },
-    { label: "Payload", value: `${selected.payloadT.toFixed(1)} t`, sub: `of ${selected.capacityT} t capacity`, bad: underload },
-    { label: "Speed", value: `${selected.speedKmh} km/h`, sub: overspeed ? "Limit 30 km/h" : undefined, bad: overspeed },
+    { label: tr("Payload"), value: `${selected.payloadT.toFixed(1)} t`, sub: tr("of {n} t capacity", { n: selected.capacityT }), bad: underload },
+    { label: tr("Speed"), value: `${selected.speedKmh} km/h`, sub: overspeed ? tr("Limit 30 km/h") : undefined, bad: overspeed },
   ];
 
   return (
@@ -82,16 +85,16 @@ export function TrackingView({
           <div className="flex flex-wrap items-center justify-between gap-2">
             <div className="flex flex-wrap items-center gap-2">
               {CLASS_IMAGE[selected.cls] && (
-                <Image src={CLASS_IMAGE[selected.cls]!} alt={`${CLASS_CONFIG[selected.cls].label}`} width={72} height={40} className="h-10 w-auto object-contain" />
+                <Image src={CLASS_IMAGE[selected.cls]!} alt={tr(CLASS_CONFIG[selected.cls].label)} width={72} height={40} className="h-10 w-auto object-contain" />
               )}
-              <h2 className="text-base font-semibold">On the way</h2>
-              <span className="text-sm text-muted-foreground">· {selected.truck}</span>
+              <h2 className="text-base font-semibold">{tr("On the way")}</h2>
+              <span className="text-sm text-muted-foreground">· {tr(selected.truck)}</span>
               <TripStatusChip status={selected.status} />
             </div>
-            <p className="num text-sm text-muted-foreground">{fmtDay(now)}</p>
+            <p className="num text-sm text-muted-foreground">{tr(fmtDay(now))}</p>
           </div>
 
-          <SiteMap trips={trips} selected={selected} onSelect={setSelectedTruck} flags={flags} />
+          <SiteMap key={lang} trips={trips} selected={selected} onSelect={setSelectedTruck} flags={flags} />
 
           <dl className="grid grid-cols-2 gap-x-4 gap-y-3 sm:grid-cols-5 sm:gap-0 sm:divide-x">
             {stats.map((s) => (
@@ -105,19 +108,19 @@ export function TrackingView({
 
           <p className="flex flex-wrap items-center gap-x-4 gap-y-1 rounded-lg bg-muted/70 px-3 py-2 text-xs text-muted-foreground">
             <span className="flex items-center gap-1.5">
-              <Crosshair className="size-3.5" aria-hidden /> GPS <span className="num font-medium text-foreground">{fmtGps(selected.gps)}</span>
+              <Crosshair className="size-3.5" aria-hidden /> {tr("GPS")} <span className="num font-medium text-foreground">{fmtGps(selected.gps)}</span>
             </span>
             <span>
-              Heading <span className="num font-medium text-foreground">{((Math.round(selected.heading) % 360) + 360) % 360}°</span>
+              {tr("Heading")} <span className="num font-medium text-foreground">{((Math.round(selected.heading) % 360) + 360) % 360}°</span>
             </span>
             <span>
-              Last ping{" "}
+              {tr("Last ping")}{" "}
               <span className={cn("num font-medium", selected.status === "no-signal" ? "text-bad" : "text-foreground")}>
-                {selected.lastPingSec >= 60 ? `${Math.floor(selected.lastPingSec / 60)} min ago` : `${selected.lastPingSec} s ago`}
+                {selected.lastPingSec >= 60 ? tr("{n} min ago", { n: Math.floor(selected.lastPingSec / 60) }) : tr("{n} s ago", { n: selected.lastPingSec })}
               </span>
             </span>
             <span>
-              {selected.from} <span aria-hidden>→</span> {selected.to}
+              {tr(selected.from)} <span aria-hidden>→</span> {tr(selected.to)}
             </span>
           </p>
         </Panel>

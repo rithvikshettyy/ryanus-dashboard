@@ -1,4 +1,4 @@
-import type { Metadata } from "next";
+import { titleMeta } from "@/lib/i18n/server";
 import { connection } from "next/server";
 import { Map as MapIcon, Navigation, PackageOpen, WifiOff } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -6,11 +6,12 @@ import { DataTable } from "@/components/modules/data-table";
 import { ModulePage } from "@/components/modules/module-page";
 import { StatStrip } from "@/components/modules/stat-strip";
 import { currentTime } from "@/lib/alerts";
+import { getT } from "@/lib/i18n/server";
 import { activeTruckRows, activeTruckStats } from "@/lib/fleet";
 import type { TableColumn } from "@/lib/table";
 import Link from "next/link";
 
-export const metadata: Metadata = { title: "Active trucks" };
+export const generateMetadata = titleMeta("Active trucks");
 
 const COLUMNS: TableColumn[] = [
   { key: "truck", label: "Truck", primary: true },
@@ -25,6 +26,7 @@ const COLUMNS: TableColumn[] = [
 
 export default async function ActiveTrucksPage() {
   await connection();
+  const t = await getT();
   const now = currentTime();
   const s = activeTruckStats(now);
   return (
@@ -39,7 +41,7 @@ export default async function ActiveTrucksPage() {
       />
       <div className="flex justify-end">
         <Button variant="outline" className="h-10 gap-2" render={<Link href="/dashboard?tab=tracking" />}>
-          <MapIcon className="size-4" aria-hidden /> Open live map
+          <MapIcon className="size-4" aria-hidden /> {t("Open live map")}
         </Button>
       </div>
       <DataTable columns={COLUMNS} rows={activeTruckRows(now)} filterKey="status" searchPlaceholder="Search truck, route or operator" exportName="active-trucks" />

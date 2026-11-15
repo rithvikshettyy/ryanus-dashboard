@@ -1,3 +1,4 @@
+import { T } from "@/components/i18n-provider";
 import { cn } from "@/lib/utils";
 
 /** Our customised card: 1px border, soft shadow that grows on hover (transition-shadow). */
@@ -37,8 +38,8 @@ export function PanelHeader({
         </span>
       )}
       <div className="min-w-[11rem] flex-1">
-        <h2 className="text-base font-semibold leading-tight">{title}</h2>
-        {description && <p className="mt-0.5 text-xs text-muted-foreground md:text-[13px]">{description}</p>}
+        <h2 className="text-base font-semibold leading-tight"><T>{title}</T></h2>
+        {description && <p className="mt-0.5 text-xs text-muted-foreground md:text-[13px]"><T>{description}</T></p>}
       </div>
       {actions}
     </div>

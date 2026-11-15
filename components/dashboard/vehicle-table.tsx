@@ -3,6 +3,7 @@
 import { useMemo, useState, useTransition } from "react";
 import { usePathname, useRouter } from "next/navigation";
 import { ArrowDown, ArrowUp, ArrowUpDown, Flame, TrendingDown, Truck } from "lucide-react";
+import { useT } from "@/components/i18n-provider";
 import { Panel, PanelHeader } from "@/components/ui/panel";
 import type { VehicleRow } from "@/lib/analytics";
 import { CLASS_CONFIG } from "@/lib/constants";
@@ -25,6 +26,7 @@ const COLS: { key: SortKey; label: string; align: "left" | "right" }[] = [
 const flagCount = (v: VehicleRow) => Number(v.lowUtilisation) + Number(v.highFuel);
 
 export function VehicleTable({ vehicles, filters }: { vehicles: VehicleRow[]; filters: DashboardFilters }) {
+  const t = useT();
   const router = useRouter();
   const pathname = usePathname();
   const [, startTransition] = useTransition();
@@ -57,7 +59,7 @@ export function VehicleTable({ vehicles, filters }: { vehicles: VehicleRow[]; fi
       <PanelHeader
         icon={Truck}
         title="Vehicle performance"
-        description={`${vehicles.length} vehicles. ${flagged} flagged: utilisation under 75% or fuel/t 12%+ above class average. Click a column to sort, a vehicle to focus the dashboard on it.`}
+        description={t("{n} vehicles. {f} flagged: utilisation under 75% or fuel/t 12%+ above class average. Click a column to sort, a vehicle to focus the dashboard on it.", { n: vehicles.length, f: flagged })}
         actions={
           <button
             type="button"
@@ -68,7 +70,7 @@ export function VehicleTable({ vehicles, filters }: { vehicles: VehicleRow[]; fi
               onlyFlagged ? "border-foreground bg-foreground text-background" : "bg-card hover:bg-muted",
             )}
           >
-            <Flame className="size-4" aria-hidden /> Flagged only ({flagged})
+            <Flame className="size-4" aria-hidden /> {t("Flagged only ({n})", { n: flagged })}
           </button>
         }
       />
@@ -76,7 +78,7 @@ export function VehicleTable({ vehicles, filters }: { vehicles: VehicleRow[]; fi
       <div className="md:hidden">
         <div className="mb-3 flex items-center gap-2">
           <label htmlFor="vt-sort" className="text-xs font-medium text-muted-foreground">
-            Sort by
+            {t("Sort by")}
           </label>
           <select
             id="vt-sort"
@@ -86,21 +88,21 @@ export function VehicleTable({ vehicles, filters }: { vehicles: VehicleRow[]; fi
           >
             {COLS.map((c) => (
               <option key={c.key} value={c.key}>
-                {c.label}
+                {t(c.label)}
               </option>
             ))}
           </select>
           <button
             type="button"
             onClick={() => setSort((x) => ({ ...x, dir: x.dir === "asc" ? "desc" : "asc" }))}
-            aria-label={sort.dir === "asc" ? "Ascending, tap for descending" : "Descending, tap for ascending"}
+            aria-label={sort.dir === "asc" ? t("Ascending, tap for descending") : t("Descending, tap for ascending")}
             className="flex size-10 items-center justify-center rounded-lg border bg-card"
           >
             {sort.dir === "asc" ? <ArrowUp className="size-4" /> : <ArrowDown className="size-4" />}
           </button>
         </div>
         {rows.length === 0 ? (
-          <p className="py-8 text-center text-sm text-muted-foreground">No flagged vehicles in this view.</p>
+          <p className="py-8 text-center text-sm text-muted-foreground">{t("No flagged vehicles in this view.")}</p>
         ) : (
           <ul className="max-h-[520px] space-y-2 overflow-y-auto">
             {rows.map((v) => (
@@ -116,14 +118,14 @@ export function VehicleTable({ vehicles, filters }: { vehicles: VehicleRow[]; fi
                 >
                   <span className="flex items-center gap-2 text-sm font-semibold">
                     <span className="size-2.5 shrink-0 rounded-full" style={{ background: CLASS_CONFIG[v.cls].color }} aria-hidden />
-                    {v.id}
+                    {t(v.id)}
                   </span>
                   <span className="mt-2 grid grid-cols-4 gap-2 text-xs">
                     {[
-                      ["Trips", fmt0(v.trips)],
-                      ["Payload", `${fmt0(v.payloadT)} t`],
-                      ["Fuel", `${fmt2(v.fuelPerTonne)} L/t`],
-                      ["Util.", fmtPct(v.utilisation)],
+                      [t("Trips"), fmt0(v.trips)],
+                      [t("Payload"), `${fmt0(v.payloadT)} t`],
+                      [t("Fuel"), `${fmt2(v.fuelPerTonne)} L/t`],
+                      [t("Util."), fmtPct(v.utilisation)],
                     ].map(([k, val]) => (
                       <span key={k}>
                         <span className="block text-muted-foreground">{k}</span>
@@ -135,12 +137,12 @@ export function VehicleTable({ vehicles, filters }: { vehicles: VehicleRow[]; fi
                     <span className="mt-2 flex flex-wrap gap-1.5">
                       {v.lowUtilisation && (
                         <span className="inline-flex items-center gap-1 rounded-md bg-warn-bg px-2 py-0.5 text-xs font-medium text-warn">
-                          <TrendingDown className="size-3" aria-hidden /> Low utilisation
+                          <TrendingDown className="size-3" aria-hidden /> {t("Low utilisation")}
                         </span>
                       )}
                       {v.highFuel && (
                         <span className="inline-flex items-center gap-1 rounded-md bg-bad-bg px-2 py-0.5 text-xs font-medium text-bad">
-                          <Flame className="size-3" aria-hidden /> High fuel/t
+                          <Flame className="size-3" aria-hidden /> {t("High fuel/t")}
                         </span>
                       )}
                     </span>
@@ -175,7 +177,7 @@ export function VehicleTable({ vehicles, filters }: { vehicles: VehicleRow[]; fi
                         active && "text-foreground",
                       )}
                     >
-                      {c.label} <Icon className="size-3" aria-hidden />
+                      {t(c.label)} <Icon className="size-3" aria-hidden />
                     </button>
                   </th>
                 );
@@ -186,7 +188,7 @@ export function VehicleTable({ vehicles, filters }: { vehicles: VehicleRow[]; fi
             {rows.length === 0 && (
               <tr>
                 <td colSpan={COLS.length} className="px-3 py-8 text-center text-muted-foreground">
-                  No flagged vehicles in this view.
+                  {t("No flagged vehicles in this view.")}
                 </td>
               </tr>
             )}
@@ -196,11 +198,11 @@ export function VehicleTable({ vehicles, filters }: { vehicles: VehicleRow[]; fi
                   <button
                     type="button"
                     onClick={() => focusVehicle(v.id)}
-                    title={filters.vehicle === v.id ? "Show all vehicles" : `Focus dashboard on ${v.id}`}
+                    title={filters.vehicle === v.id ? t("Show all vehicles") : t("Focus dashboard on {id}", { id: v.id })}
                     className="flex min-h-10 items-center gap-2 font-medium hover:text-primary hover:underline"
                   >
                     <span className="size-2.5 rounded-full" style={{ background: CLASS_CONFIG[v.cls].color }} aria-hidden />
-                    {v.id}
+                    {t(v.id)}
                   </button>
                 </td>
                 <td className="num px-3 py-2.5 text-right">{fmt0(v.trips)}</td>
@@ -211,15 +213,15 @@ export function VehicleTable({ vehicles, filters }: { vehicles: VehicleRow[]; fi
                   <span className="flex flex-wrap gap-1.5">
                     {v.lowUtilisation && (
                       <span className="inline-flex items-center gap-1 rounded-md bg-warn-bg px-2 py-0.5 text-xs font-medium text-warn">
-                        <TrendingDown className="size-3" aria-hidden /> Low utilisation
+                        <TrendingDown className="size-3" aria-hidden /> {t("Low utilisation")}
                       </span>
                     )}
                     {v.highFuel && (
                       <span className="inline-flex items-center gap-1 rounded-md bg-bad-bg px-2 py-0.5 text-xs font-medium text-bad">
-                        <Flame className="size-3" aria-hidden /> High fuel/t
+                        <Flame className="size-3" aria-hidden /> {t("High fuel/t")}
                       </span>
                     )}
-                    {!v.lowUtilisation && !v.highFuel && <span className="text-xs text-muted-foreground">None</span>}
+                    {!v.lowUtilisation && !v.highFuel && <span className="text-xs text-muted-foreground">{t("None")}</span>}
                   </span>
                 </td>
               </tr>

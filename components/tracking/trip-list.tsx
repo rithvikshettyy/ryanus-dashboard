@@ -1,6 +1,7 @@
 "use client";
 
 import { ChevronDown, Filter, MapPin, Truck } from "lucide-react";
+import { useT } from "@/components/i18n-provider";
 import { CLASS_CONFIG } from "@/lib/constants";
 import type { Trip, TripStatus, TruckFlag } from "@/lib/tracking";
 import { cn } from "@/lib/utils";
@@ -23,6 +24,7 @@ export function TripList({
   filter: ListFilter;
   onFilter: (f: ListFilter) => void;
 }) {
+  const tr = useT();
   return (
     <div className="flex h-full min-h-0 flex-col">
       <div className="mb-3 flex items-center gap-3">
@@ -30,23 +32,23 @@ export function TripList({
           <Truck className="size-5" aria-hidden />
         </span>
         <div className="min-w-0 flex-1">
-          <h2 className="text-base font-semibold leading-tight">Ongoing trips</h2>
-          <p className="text-xs text-muted-foreground">{trips.length} trucks · tap one to track it</p>
+          <h2 className="text-base font-semibold leading-tight">{tr("Ongoing trips")}</h2>
+          <p className="text-xs text-muted-foreground">{tr("{n} trucks · tap one to track it", { n: trips.length })}</p>
         </div>
         <div className="relative">
           <Filter className="pointer-events-none absolute left-3 top-3 size-4 text-muted-foreground" aria-hidden />
           <select
-            aria-label="Filter trips by status"
+            aria-label={tr("Filter trips by status")}
             value={filter}
             onChange={(e) => onFilter(e.target.value as ListFilter)}
             className="h-10 appearance-none rounded-lg border bg-card pl-9 pr-8 text-sm font-medium transition-colors hover:bg-muted focus-visible:outline-2 focus-visible:outline-ring"
           >
-            <option value="all">All</option>
+            <option value="all">{tr("All")}</option>
             {(Object.keys(STATUS_CONFIG) as TripStatus[])
               .filter((s) => s !== "completed")
               .map((s) => (
                 <option key={s} value={s}>
-                  {STATUS_CONFIG[s].label}
+                  {tr(STATUS_CONFIG[s].label)}
                 </option>
               ))}
           </select>
@@ -56,7 +58,7 @@ export function TripList({
 
       <ul className="max-h-[420px] min-h-0 flex-1 space-y-2.5 overflow-y-auto pr-1 xl:max-h-none">
         {trips.length === 0 && (
-          <li className="rounded-xl border border-dashed px-3 py-10 text-center text-sm text-muted-foreground">No trucks with this status right now.</li>
+          <li className="rounded-xl border border-dashed px-3 py-10 text-center text-sm text-muted-foreground">{tr("No trucks with this status right now.")}</li>
         )}
         {trips.map((t) => {
           const on = t.truck === selected;
@@ -75,7 +77,7 @@ export function TripList({
               >
                 <div className="flex items-start justify-between gap-2">
                   <div className="min-w-0">
-                    <p className="text-[11px] text-muted-foreground">Trip number</p>
+                    <p className="text-[11px] text-muted-foreground">{tr("Trip number")}</p>
                     <p className="num truncate text-sm font-semibold">#{t.id}</p>
                   </div>
                   <TripStatusChip status={t.status} />
@@ -89,25 +91,25 @@ export function TripList({
                     <Truck className="size-[18px]" aria-hidden />
                   </span>
                   <div className="min-w-0 flex-1">
-                    <p className="truncate text-sm font-semibold leading-tight">{t.truck}</p>
+                    <p className="truncate text-sm font-semibold leading-tight">{tr(t.truck)}</p>
                     <p className="truncate text-xs text-muted-foreground">
-                      {t.material} · {t.payloadT.toFixed(0)} / {t.capacityT} t
+                      {tr(t.material)} · {t.payloadT.toFixed(0)} / {t.capacityT} t
                     </p>
                   </div>
                   <div className="text-right">
                     <p className={cn("num text-sm font-semibold", overspeed && "text-bad")}>{t.speedKmh} km/h</p>
                     <p className="num text-xs text-muted-foreground">
-                      {t.etaMin !== null && t.status !== "completed" ? `${t.etaMin} min` : "—"}
+                      {t.etaMin !== null && t.status !== "completed" ? tr("{n} min", { n: t.etaMin }) : "—"}
                     </p>
                   </div>
                 </div>
 
                 <p className="mt-2.5 flex items-center gap-1.5 text-xs text-muted-foreground">
                   <span className="size-2 shrink-0 rounded-full bg-[#1f9d6b]" aria-hidden />
-                  <span className="truncate">{t.from}</span>
+                  <span className="truncate">{tr(t.from)}</span>
                   <span aria-hidden>→</span>
                   <MapPin className="size-3.5 shrink-0 text-primary" aria-hidden />
-                  <span className="truncate">{t.to}</span>
+                  <span className="truncate">{tr(t.to)}</span>
                 </p>
 
                 {(t.status === "hauling" || t.status === "returning" || t.status === "no-signal") && (
@@ -120,7 +122,7 @@ export function TripList({
                   <div className="mt-2.5 flex items-center justify-between gap-2">
                     <FlagChip flag={flag} />
                     {t.status === "no-signal" && (
-                      <span className="text-xs text-muted-foreground">Last ping {Math.floor(t.lastPingSec / 60)} min ago</span>
+                      <span className="text-xs text-muted-foreground">{tr("Last ping {n} min ago", { n: Math.floor(t.lastPingSec / 60) })}</span>
                     )}
                   </div>
                 )}
