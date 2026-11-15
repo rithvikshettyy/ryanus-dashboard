@@ -1,0 +1,134 @@
+[
+  {
+    "id": "CD 01",
+    "vehicleClass": "coal-dumper"
+  },
+  {
+    "id": "CD 02",
+    "vehicleClass": "coal-dumper"
+  },
+  {
+    "id": "CD 03",
+    "vehicleClass": "coal-dumper"
+  },
+  {
+    "id": "CD 04",
+    "vehicleClass": "coal-dumper"
+  },
+  {
+    "id": "CD 05",
+    "vehicleClass": "coal-dumper"
+  },
+  {
+    "id": "CD 06",
+    "vehicleClass": "coal-dumper"
+  },
+  {
+    "id": "CD 07",
+    "vehicleClass": "coal-dumper"
+  },
+  {
+    "id": "CD 08",
+    "vehicleClass": "coal-dumper"
+  },
+  {
+    "id": "OB 01",
+    "vehicleClass": "ob-dumper"
+  },
+  {
+    "id": "OB 02",
+    "vehicleClass": "ob-dumper"
+  },
+  {
+    "id": "OB 03",
+    "vehicleClass": "ob-dumper"
+  },
+  {
+    "id": "OB 04",
+    "vehicleClass": "ob-dumper"
+  },
+  {
+    "id": "OB 05",
+    "vehicleClass": "ob-dumper"
+  },
+  {
+    "id": "OB 06",
+    "vehicleClass": "ob-dumper"
+  },
+  {
+    "id": "OB 07",
+    "vehicleClass": "ob-dumper"
+  },
+  {
+    "id": "OB 08",
+    "vehicleClass": "ob-dumper"
+  },
+  {
+    "id": "OB 09",
+    "vehicleClass": "ob-dumper"
+  },
+  {
+    "id": "OB 10",
+    "vehicleClass": "ob-dumper"
+  },
+  {
+    "id": "HD 01",
+    "vehicleClass": "heavy-dumper"
+  },
+  {
+    "id": "HD 02",
+    "vehicleClass": "heavy-dumper"
+  },
+  {
+    "id": "HD 03",
+    "vehicleClass": "heavy-dumper"
+  },
+  {
+    "id": "HD 04",
+    "vehicleClass": "heavy-dumper"
+  },
+  {
+    "id": "CT 01",
+    "vehicleClass": "tipper"
+  },
+  {
+    "id": "CT 02",
+    "vehicleClass": "tipper"
+  },
+  {
+    "id": "CT 03",
+    "vehicleClass": "tipper"
+  },
+  {
+    "id": "CT 04",
+    "vehicleClass": "tipper"
+  },
+  {
+    "id": "CT 05",
+    "vehicleClass": "tipper"
+  },
+  {
+    "id": "CT 06",
+    "vehicleClass": "tipper"
+  },
+  {
+    "id": "AD 01",
+    "vehicleClass": "adt"
+  },
+  {
+    "id": "AD 02",
+    "vehicleClass": "adt"
+  },
+  {
+    "id": "AD 03",
+    "vehicleClass": "adt"
+  },
+  {
+    "id": "AD 04",
+    "vehicleClass": "adt"
+  },
+  {
+    "id": "AD 05",
+    "vehicleClass": "adt"
+  }
+]

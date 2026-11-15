@@ -1,0 +1,112 @@
+"use client";
+
+import { CheckCheck, ChevronRight, MapPin, RotateCcw, UserRound, Wrench } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { ALERT_TYPE_CONFIG, EQUIPMENT_CONFIG, SEVERITY_CONFIG } from "@/lib/alerts";
+import { timeAgo } from "@/lib/format";
+import type { Alert } from "@/lib/types";
+import { cn } from "@/lib/utils";
+import { SeverityBadge, StatusPill } from "./status-pill";
+import { ThresholdBar } from "./threshold-bar";
+
+export interface AlertActions {
+  onAcknowledge: (a: Alert) => void;
+  onResolve: (a: Alert) => void;
+  onReopen: (a: Alert) => void;
+  onOpen: (a: Alert) => void;
+}
+
+export function AlertActionButtons({ alert, actions, stretch = false }: { alert: Alert; actions: AlertActions; stretch?: boolean }) {
+  const cls = stretch ? "flex-1" : "";
+  return (
+    <div className="flex flex-wrap gap-2">
+      {alert.status === "active" && (
+        <Button variant="outline" className={cn("h-10 gap-1.5 px-3.5", cls)} onClick={() => actions.onAcknowledge(alert)}>
+          <CheckCheck /> Acknowledge
+        </Button>
+      )}
+      {alert.status !== "resolved" && (
+        <Button className={cn("h-10 gap-1.5 px-3.5", cls)} onClick={() => actions.onResolve(alert)}>
+          Resolve
+        </Button>
+      )}
+      {alert.status === "resolved" && (
+        <Button variant="outline" className={cn("h-10 gap-1.5 px-3.5", cls)} onClick={() => actions.onReopen(alert)}>
+          <RotateCcw /> Reopen
+        </Button>
+      )}
+    </div>
+  );
+}
+
+export function AlertCard({ alert, now, actions }: { alert: Alert; now: number; actions: AlertActions }) {
+  const sev = SEVERITY_CONFIG[alert.severity];
+  const Equip = EQUIPMENT_CONFIG[alert.equipmentType].icon;
+  const TypeIcon = ALERT_TYPE_CONFIG[alert.type].icon;
+  const resolved = alert.status === "resolved";
+
+  return (
+    <article
+      aria-label={`${sev.label} alert: ${alert.equipmentName} ${alert.title}`}
+      className={cn(
+        "relative overflow-hidden rounded-2xl border bg-card shadow-xs transition-shadow duration-200 hover:shadow-md",
+        resolved && "opacity-75",
+      )}
+    >
+      <span className={cn("absolute inset-y-0 left-0 w-1.5", resolved ? "bg-good" : sev.stripe)} aria-hidden />
+      <div className="grid gap-5 p-4 pl-6 md:p-5 md:pl-7 lg:grid-cols-[1.25fr_1fr]">
+        <div className="min-w-0 space-y-3">
+          <div className="flex flex-wrap items-center gap-2">
+            <SeverityBadge severity={alert.severity} />
+            <StatusPill status={alert.status} />
+            <time className="num ml-auto text-xs text-muted-foreground" dateTime={new Date(alert.createdAt).toISOString()}>
+              {timeAgo(now - alert.createdAt)}
+            </time>
+          </div>
+
+          <div className="flex items-center gap-3">
+            <span className="flex size-11 shrink-0 items-center justify-center rounded-xl border bg-card text-muted-foreground">
+              <Equip className="size-5" aria-hidden />
+            </span>
+            <div className="min-w-0">
+              <p className="truncate text-lg font-semibold leading-tight">{alert.equipmentName}</p>
+              <p className="flex items-center gap-1.5 text-sm text-muted-foreground">
+                <TypeIcon className="size-3.5" aria-hidden />
+                {alert.title}
+              </p>
+            </div>
+          </div>
+
+          <ul className="flex flex-wrap gap-x-4 gap-y-1 text-xs text-muted-foreground">
+            <li className="flex items-center gap-1.5">
+              <MapPin className="size-3.5" aria-hidden /> {alert.location}
+            </li>
+            {alert.operator && (
+              <li className="flex items-center gap-1.5">
+                <UserRound className="size-3.5" aria-hidden /> {alert.operator}
+              </li>
+            )}
+          </ul>
+
+          <p className="flex gap-2 rounded-lg bg-muted/70 px-3 py-2 text-sm">
+            <Wrench className="mt-0.5 size-4 shrink-0 text-muted-foreground" aria-hidden />
+            <span>
+              <span className="font-medium">Next step: </span>
+              {alert.action}
+            </span>
+          </p>
+        </div>
+
+        <div className="flex flex-col justify-between gap-4 lg:border-l lg:pl-5">
+          <ThresholdBar alert={alert} />
+          <div className="flex flex-wrap items-center justify-between gap-2">
+            <AlertActionButtons alert={alert} actions={actions} />
+            <Button variant="ghost" className="h-10 gap-1 px-3" onClick={() => actions.onOpen(alert)}>
+              Details <ChevronRight />
+            </Button>
+          </div>
+        </div>
+      </div>
+    </article>
+  );
+}
