@@ -16,7 +16,7 @@ export function ExportButton({ csv, filename }: { csv: string; filename: string 
     toast.success("CSV exported", { description: filename });
   }
   return (
-    <Button onClick={download} className="h-10 gap-2 px-4 shadow-sm">
+    <Button onClick={download} aria-label="Export CSV" className="h-10 gap-2 px-3 shadow-sm sm:px-4">
       <Download /> <span className="hidden sm:inline">Export CSV</span>
     </Button>
   );

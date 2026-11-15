@@ -122,6 +122,28 @@ export function TripTable({
         <Button variant="outline" className="h-10 gap-2 px-3.5" onClick={exportCsv}>
           <Download /> Export
         </Button>
+        {/* Phones have no column headers, so sorting gets a select + direction button */}
+        <div className="flex w-full items-center gap-2 md:hidden">
+          <label htmlFor="trip-sort" className="sr-only">Sort trips by</label>
+          <select
+            id="trip-sort"
+            value={sort.key}
+            onChange={(e) => setSort((s) => ({ ...s, key: e.target.value as SortKey }))}
+            className="h-10 min-w-0 flex-1 rounded-lg border bg-card px-3 text-sm"
+          >
+            {COLS.map((c) => (
+              <option key={c.key} value={c.key}>Sort by: {c.label}</option>
+            ))}
+          </select>
+          <Button
+            variant="outline"
+            className="size-10 shrink-0 p-0"
+            aria-label={sort.dir === "asc" ? "Ascending, tap for descending" : "Descending, tap for ascending"}
+            onClick={() => setSort((s) => ({ ...s, dir: s.dir === "asc" ? "desc" : "asc" }))}
+          >
+            {sort.dir === "asc" ? <ArrowUp className="size-4" aria-hidden /> : <ArrowDown className="size-4" aria-hidden />}
+          </Button>
+        </div>
       </div>
 
       {/* Phones: one card per trip instead of a 900px wide table */}

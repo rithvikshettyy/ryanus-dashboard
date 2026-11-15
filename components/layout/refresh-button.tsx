@@ -18,7 +18,7 @@ export function RefreshButton() {
       disabled={pending}
       aria-label="Refresh data"
       title="Refresh data"
-      className="hidden size-10 shrink-0 items-center justify-center rounded-lg border bg-card text-muted-foreground transition-colors hover:bg-muted hover:text-foreground disabled:opacity-70 sm:flex"
+      className="flex size-10 shrink-0 items-center justify-center rounded-lg border bg-card text-muted-foreground transition-colors hover:bg-muted hover:text-foreground disabled:opacity-70"
     >
       <RefreshCw className={pending ? "size-[18px] animate-spin" : "size-[18px]"} />
     </button>

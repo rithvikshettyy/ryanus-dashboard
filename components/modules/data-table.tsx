@@ -181,6 +181,31 @@ export function DataTable({ columns, rows, filterKey, searchPlaceholder = "Searc
             ))}
           </div>
         )}
+
+        {/* Phones have no column headers to tap, so sorting gets its own select + direction button */}
+        <div className="flex items-center gap-2 md:hidden">
+          <label htmlFor="mobile-sort" className="sr-only">Sort by</label>
+          <select
+            id="mobile-sort"
+            value={sort?.key ?? ""}
+            onChange={(e) => setSort(e.target.value ? { key: e.target.value, dir: sort?.dir ?? "asc" } : null)}
+            className="h-10 min-w-0 flex-1 rounded-lg border bg-background px-3 text-sm"
+          >
+            <option value="">Sort by: default order</option>
+            {columns.map((c) => (
+              <option key={c.key} value={c.key}>Sort by: {c.label}</option>
+            ))}
+          </select>
+          <Button
+            variant="outline"
+            className="size-10 shrink-0 p-0"
+            disabled={!sort}
+            aria-label={sort?.dir === "desc" ? "Descending, tap for ascending" : "Ascending, tap for descending"}
+            onClick={() => setSort((s) => (s ? { ...s, dir: s.dir === "asc" ? "desc" : "asc" } : s))}
+          >
+            {sort?.dir === "desc" ? <ArrowDown className="size-4" aria-hidden /> : <ArrowUp className="size-4" aria-hidden />}
+          </Button>
+        </div>
       </div>
 
       {visible.length === 0 ? (

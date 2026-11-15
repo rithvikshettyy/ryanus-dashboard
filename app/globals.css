@@ -4,7 +4,8 @@
 
 @theme inline {
   --font-sans: var(--font-geist-sans), ui-sans-serif, system-ui, sans-serif;
-  --font-mono: var(--font-geist-mono), ui-monospace, monospace;
+  /* One typeface site-wide: any "mono" utility also resolves to Geist, so nothing falls back to a different font */
+  --font-mono: var(--font-sans);
   --font-heading: var(--font-sans);
 
   --color-background: var(--background);
@@ -112,14 +113,22 @@
 }
 
 @layer utilities {
+  /* Numbers stay in Geist; tabular-nums just keeps digit widths equal so columns line up */
   .num {
-    font-family: var(--font-mono);
     font-variant-numeric: tabular-nums;
   }
 }
 
+/* Third-party widgets ship their own font stacks; force them onto Geist */
+.leaflet-container,
+.leaflet-container .leaflet-tooltip,
+.leaflet-container .leaflet-popup-content,
+.leaflet-container .leaflet-control,
+.leaflet-container a { font-family: var(--font-sans) !important; }
+[data-sonner-toaster],
+[data-sonner-toast] { font-family: var(--font-sans) !important; }
+
 /* Leaflet map: site name labels and tooltips */
-.leaflet-container { font-family: inherit; }
 .leaflet-tooltip.site-label {
   background: rgba(17, 24, 39, 0.8);
   color: #fff;
