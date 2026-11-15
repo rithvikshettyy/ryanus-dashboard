@@ -37,6 +37,7 @@ export function TripTable({
   const [search, setSearch] = useState("");
   const [status, setStatus] = useState<TripStatus | "all">("all");
   const [sort, setSort] = useState<{ key: SortKey; dir: Dir }>({ key: "status", dir: "asc" });
+  const [mobileLimit, setMobileLimit] = useState(8); // phones render cards, so show them in pages
   const debounced = useDebounce(search, 300); // wait 300 ms after typing stops
 
   const rows = useMemo(() => {
@@ -123,7 +124,61 @@ export function TripTable({
         </Button>
       </div>
 
-      <div className="max-h-[460px] overflow-auto rounded-xl border">
+      {/* Phones: one card per trip instead of a 900px wide table */}
+      <ul className="space-y-2 md:hidden">
+        {rows.length === 0 && <li className="rounded-xl border py-10 text-center text-sm text-muted-foreground">No trips match these filters.</li>}
+        {rows.slice(0, mobileLimit).map((t) => (
+          <li key={`m-${t.truck}-${t.id}`}>
+            <button
+              type="button"
+              onClick={() => {
+                onSelect(t.truck);
+                document.getElementById("site-map")?.scrollIntoView({ behavior: "smooth", block: "center" });
+              }}
+              className={cn(
+                "w-full rounded-xl border p-3 text-left transition-colors hover:bg-muted/60",
+                t.truck === selected && "border-primary bg-primary-soft",
+              )}
+            >
+              <span className="flex items-start justify-between gap-2">
+                <span className="min-w-0">
+                  <span className="flex items-center gap-2 text-sm font-semibold">
+                    <span className="size-2.5 shrink-0 rounded-full" style={{ background: CLASS_CONFIG[t.cls].color }} aria-hidden />
+                    {t.truck}
+                  </span>
+                  <span className="num block text-xs text-muted-foreground">#{t.id}</span>
+                </span>
+                <TripStatusChip status={t.status} />
+              </span>
+              <span className="mt-2 block text-xs text-muted-foreground">
+                {t.from} <span aria-hidden>→</span> {t.to}
+              </span>
+              <span className="mt-2 grid grid-cols-4 gap-2 text-xs">
+                {[
+                  ["Started", fmtClock(t.startedAt)],
+                  ["Arrival", t.arrivalAt ? fmtClock(t.arrivalAt) : t.status === "no-signal" ? "Unknown" : "Arrived"],
+                  ["Payload", `${t.payloadT.toFixed(1)} t`],
+                  ["Distance", `${t.distanceKm.toFixed(1)} km`],
+                ].map(([k, v]) => (
+                  <span key={k}>
+                    <span className="block text-muted-foreground">{k}</span>
+                    <span className="num block text-[13px] font-semibold">{v}</span>
+                  </span>
+                ))}
+              </span>
+            </button>
+          </li>
+        ))}
+        {rows.length > mobileLimit && (
+          <li>
+            <Button variant="outline" className="h-11 w-full" onClick={() => setMobileLimit((n) => n + 8)}>
+              Show 8 more ({rows.length - mobileLimit} left)
+            </Button>
+          </li>
+        )}
+      </ul>
+
+      <div className="hidden max-h-[460px] overflow-auto rounded-xl border md:block">
         <table className="w-full min-w-[900px] text-sm">
           <thead className="sticky top-0 z-10 bg-muted text-xs uppercase tracking-wide text-muted-foreground">
             <tr>

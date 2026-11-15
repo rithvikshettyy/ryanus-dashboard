@@ -13,9 +13,9 @@ const RECORDS = recordsJson as ShiftRecord[];
 const MODELS: Record<VehicleClass, string> = {
   "coal-dumper": "BEML BH35",
   "ob-dumper": "Komatsu HD605",
-  "heavy-dumper": "CAT 793F",
-  tipper: "Tata Prima 2528",
-  adt: "Volvo A40G",
+  "heavy-dumper": "CAT 793D",
+  tipper: "25 t heavy-duty tipper",
+  adt: "Hyundai ADT",
 };
 
 /** Machines currently in the workshop (never on the live map). */

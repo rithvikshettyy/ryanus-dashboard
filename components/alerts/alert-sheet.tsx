@@ -27,7 +27,7 @@ export function AlertSheet({
 }) {
   return (
     <Sheet open={alert !== null} onOpenChange={(o) => !o && onClose()}>
-      <SheetContent className="w-full gap-0 overflow-y-auto p-0 sm:max-w-md">
+      <SheetContent className="gap-0 overflow-y-auto p-0 data-[side=right]:w-full data-[side=right]:sm:max-w-md">
         {alert && <Body alert={alert} related={related} now={now} actions={actions} onSelect={onSelect} />}
       </SheetContent>
     </Sheet>

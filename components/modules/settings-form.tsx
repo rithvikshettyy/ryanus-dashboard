@@ -44,7 +44,7 @@ export function SettingsForm() {
   const [toggles, setToggles] = useState(() => Object.fromEntries(TOGGLES.map((t) => [t.key, t.on])));
   const [units, setUnits] = useState<"metric" | "imperial">("metric");
 
-  const save = () => toast.success("Settings saved", { description: "Demo only: values are kept for this session." });
+  const save = () => toast.success("Settings saved");
 
   return (
     <div className="grid gap-4 lg:grid-cols-2">
@@ -87,7 +87,7 @@ export function SettingsForm() {
       <Panel>
         <PanelHeader icon={MapPin} title="Site and display" description="Applies to every screen" />
         <dl className="space-y-3 text-sm">
-          <div className="flex justify-between gap-4"><dt className="text-muted-foreground">Site</dt><dd className="font-medium">Jharia Block 4</dd></div>
+          <div className="flex justify-between gap-4"><dt className="text-muted-foreground">Site</dt><dd className="font-medium">Faridabad, Haryana</dd></div>
           <div className="flex justify-between gap-4"><dt className="text-muted-foreground">Time zone</dt><dd className="font-medium">IST (UTC+05:30)</dd></div>
           <div className="flex items-center justify-between gap-4">
             <dt className="text-muted-foreground">Units</dt>

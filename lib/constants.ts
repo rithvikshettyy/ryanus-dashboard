@@ -16,6 +16,9 @@ export const CLASS_CONFIG: Record<
 export const CLASS_IMAGE: Partial<Record<VehicleClass, string>> = {
   "coal-dumper": "/coal_dumper.png",
   "ob-dumper": "/ob_truck.png",
+  "heavy-dumper": "/heavy_dumper.png",
+  tipper: "/coal_tipper.png",
+  adt: "/adt.png",
 };
 
 export const ALL_CLASSES = Object.keys(CLASS_CONFIG) as VehicleClass[];

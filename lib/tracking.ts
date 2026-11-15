@@ -91,9 +91,18 @@ export function splitRoute(route: Route, f: number, reversed: boolean): { done: 
   return { done, todo };
 }
 
-/** Map units -> fake GPS around the mine (Jharia coalfield). */
+/**
+ * Map units -> real GPS. The 1000 x 600 site (8 km x 4.8 km, 8 m per unit) is laid over the Aravalli foothills near Faridabad, Haryana.
+ * Trucks and haul roads are simulated, but they sit on real satellite imagery of this area.
+ */
+const CENTRE = { lat: 28.3400, lon: 77.2600 }; // middle of the map (500, 300)
+const DEG_PER_UNIT_LAT = METRES_PER_UNIT / 111_320;
+const DEG_PER_UNIT_LON = METRES_PER_UNIT / (111_320 * Math.cos((CENTRE.lat * Math.PI) / 180));
 export function toGps(x: number, y: number): { lat: number; lon: number } {
-  return { lat: 23.765 - y * 0.0000717, lon: 86.38 + x * 0.000078 };
+  return {
+    lat: CENTRE.lat - (y - MAP_H / 2) * DEG_PER_UNIT_LAT, // y grows downwards, latitude grows upwards
+    lon: CENTRE.lon + (x - MAP_W / 2) * DEG_PER_UNIT_LON,
+  };
 }
 
 /* ------------------------------------------------------------------ *

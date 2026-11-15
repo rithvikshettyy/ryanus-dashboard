@@ -117,3 +117,23 @@
     font-variant-numeric: tabular-nums;
   }
 }
+
+/* Leaflet map: site name labels and tooltips */
+.leaflet-container { font-family: inherit; }
+.leaflet-tooltip.site-label {
+  background: rgba(17, 24, 39, 0.8);
+  color: #fff;
+  border: 0;
+  border-radius: 6px;
+  padding: 2px 7px;
+  font-size: 11px;
+  font-weight: 600;
+  box-shadow: none;
+}
+.leaflet-tooltip.site-label::before { display: none; }
+.truck-selected { background: transparent; border: 0; }
+.leaflet-control-attribution { font-size: 10px; }
+
+/* Horizontal chip rows scroll with a swipe, without a visible scrollbar */
+.no-scrollbar { scrollbar-width: none; }
+.no-scrollbar::-webkit-scrollbar { display: none; }

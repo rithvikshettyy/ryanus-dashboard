@@ -3,12 +3,13 @@
 import { useState, useTransition } from "react";
 import { usePathname, useRouter } from "next/navigation";
 import type { DateRange } from "react-day-picker";
-import { CalendarDays, ChevronDown, Loader2, RotateCcw } from "lucide-react";
+import Image from "next/image";
+import { CalendarDays, Check, ChevronDown, Loader2, RotateCcw, Truck } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Calendar } from "@/components/ui/calendar";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Panel } from "@/components/ui/panel";
-import { CLASS_CONFIG, ALL_CLASSES, DATA_END, DATA_START } from "@/lib/constants";
+import { CLASS_CONFIG, CLASS_IMAGE, ALL_CLASSES, DATA_END, DATA_START } from "@/lib/constants";
 import { defaultFilters, filtersToQuery, type DashboardFilters } from "@/lib/filters";
 import { fmtRange } from "@/lib/format";
 import { shiftDays, todayIso } from "@/lib/today";
@@ -72,7 +73,7 @@ export function FilterBar({
 
   return (
     <Panel aria-label="Filters" className="space-y-4">
-      <div className="flex flex-col gap-4 lg:flex-row lg:flex-wrap lg:items-end">
+      <div className="flex flex-col gap-4 sm:flex-row sm:flex-wrap sm:items-end">
         <div className="space-y-1.5">
           <p className="text-xs font-medium text-muted-foreground">Period</p>
           <Popover
@@ -133,36 +134,6 @@ export function FilterBar({
         </div>
 
         <div className="space-y-1.5">
-          <p className="text-xs font-medium text-muted-foreground" id="class-label">
-            Vehicle classes (pick 2 or more to compare)
-          </p>
-          <div role="group" aria-labelledby="class-label" className="flex flex-wrap gap-2">
-            {ALL_CLASSES.map((cls) => {
-              const on = filters.classes.includes(cls);
-              return (
-                <button
-                  key={cls}
-                  type="button"
-                  aria-pressed={on}
-                  onClick={() => toggleClass(cls)}
-                  className={cn(
-                    "flex h-10 items-center gap-2 rounded-full border px-3.5 text-sm font-medium transition-colors",
-                    on ? "border-foreground bg-foreground text-background" : "bg-card hover:bg-muted",
-                  )}
-                >
-                  <span
-                    className={cn("size-2.5 rounded-full", on && "ring-2 ring-background")}
-                    style={{ background: CLASS_CONFIG[cls].color }}
-                    aria-hidden
-                  />
-                  {CLASS_CONFIG[cls].label}
-                </button>
-              );
-            })}
-          </div>
-        </div>
-
-        <div className="space-y-1.5">
           <label htmlFor="vehicle" className="text-xs font-medium text-muted-foreground">
             Vehicle
           </label>
@@ -182,6 +153,60 @@ export function FilterBar({
             </select>
             <ChevronDown className="pointer-events-none absolute right-3 top-3 size-4 text-muted-foreground" aria-hidden />
           </div>
+        </div>
+      </div>
+
+      {/* Vehicle classes: each class is a photo tile you can switch on or off (pick 2 or more to compare) */}
+      <div className="space-y-1.5">
+        <p className="text-xs font-medium text-muted-foreground" id="class-label">
+          Vehicle classes (pick 2 or more to compare)
+        </p>
+        <div
+          role="group"
+          aria-labelledby="class-label"
+          className="no-scrollbar -mx-1 flex gap-2.5 overflow-x-auto px-1 pb-1 lg:grid lg:grid-cols-5 lg:overflow-visible"
+        >
+          {ALL_CLASSES.map((cls) => {
+            const on = filters.classes.includes(cls);
+            const cfg = CLASS_CONFIG[cls];
+            const img = CLASS_IMAGE[cls];
+            return (
+              <button
+                key={cls}
+                type="button"
+                aria-pressed={on}
+                onClick={() => toggleClass(cls)}
+                className={cn(
+                  "relative flex w-36 shrink-0 flex-col items-center gap-1 rounded-2xl border-2 p-2.5 text-center transition-all lg:w-auto",
+                  on ? "border-foreground bg-card shadow-md" : "border-border bg-card/60 hover:border-foreground/40 hover:bg-card",
+                )}
+              >
+                <span
+                  className={cn(
+                    "absolute right-2 top-2 flex size-5 items-center justify-center rounded-full border-2 transition-colors",
+                    on ? "border-foreground bg-foreground text-background" : "border-border bg-card",
+                  )}
+                  aria-hidden
+                >
+                  {on && <Check className="size-3" strokeWidth={3} />}
+                </span>
+                <span className={cn("flex h-16 w-full items-center justify-center transition-opacity", !on && "opacity-60")}>
+                  {img ? (
+                    <Image src={img} alt="" width={160} height={80} className="h-full w-auto max-w-full object-contain drop-shadow-sm" />
+                  ) : (
+                    <Truck className="size-8 text-muted-foreground" aria-hidden />
+                  )}
+                </span>
+                <span className="flex items-center gap-1.5 text-sm font-semibold">
+                  <span className="size-2.5 shrink-0 rounded-full" style={{ background: cfg.color }} aria-hidden />
+                  {cfg.label}
+                </span>
+                <span className="num text-[11px] text-muted-foreground">
+                  {cfg.count} vehicles · {cfg.capacityT} t
+                </span>
+              </button>
+            );
+          })}
         </div>
       </div>
 

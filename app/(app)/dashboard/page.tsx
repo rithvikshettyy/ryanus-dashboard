@@ -3,7 +3,6 @@ import { SearchX } from "lucide-react";
 import { DashboardTabs, type DashboardTab } from "@/components/dashboard/dashboard-tabs";
 import { ExportButton } from "@/components/dashboard/export-button";
 import { FilterBar } from "@/components/dashboard/filter-bar";
-import { ClassCards } from "@/components/dashboard/class-cards";
 import { EfficiencyTable } from "@/components/dashboard/efficiency-table";
 import { Insights } from "@/components/dashboard/insights";
 import { KpiCards } from "@/components/dashboard/kpi-cards";
@@ -71,7 +70,6 @@ export default async function DashboardPage({ searchParams }: { searchParams: Pr
           </Panel>
         ) : (
           <>
-            <ClassCards summaries={data.summaries} />
             <Insights insights={data.insights} />
             <KpiCards summaries={data.summaries} />
 

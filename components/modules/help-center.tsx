@@ -28,12 +28,14 @@ export function HelpCenter({ chunks, alerts, serverNow }: { chunks: Chunk[]; ale
       <div className="space-y-4 lg:col-span-2">
         <div className="grid gap-3 sm:grid-cols-3">
           {GUIDES.map(({ href, icon: Icon, title, text }) => (
-            <Link key={title} href={href} className="group min-w-0 rounded-2xl border bg-card p-4 shadow-xs transition-shadow hover:shadow-md">
-              <span className="flex size-9 items-center justify-center rounded-lg bg-primary-soft text-primary">
+            <Link key={title} href={href} className="group flex min-w-0 items-center gap-3 rounded-2xl border bg-card p-3.5 shadow-xs transition-shadow hover:shadow-md sm:block sm:p-4">
+              <span className="flex size-9 shrink-0 items-center justify-center rounded-lg bg-primary-soft text-primary">
                 <Icon className="size-[18px]" aria-hidden />
               </span>
-              <p className="mt-3 text-sm font-semibold group-hover:text-primary">{title}</p>
-              <p className="text-xs text-muted-foreground">{text}</p>
+              <span className="min-w-0 sm:mt-3 sm:block">
+                <span className="block text-sm font-semibold group-hover:text-primary">{title}</span>
+                <span className="block text-xs text-muted-foreground">{text}</span>
+              </span>
             </Link>
           ))}
         </div>
@@ -94,6 +96,9 @@ export function HelpCenter({ chunks, alerts, serverNow }: { chunks: Chunk[]; ale
           <span className="flex size-9 items-center justify-center rounded-lg bg-info-bg text-info"><Mail className="size-[18px]" aria-hidden /></span>
           <span className="text-sm"><span className="block font-medium">Email support</span><span className="text-xs text-muted-foreground">For reports, access and data issues</span></span>
         </a>
+        <p className="border-t pt-3 text-xs leading-relaxed text-muted-foreground">
+          Heavy Dumper photo: Caterpillar 793D by TZorn (CC BY-SA 3.0, Wikimedia Commons). Satellite imagery &copy; Esri.
+        </p>
       </Panel>
     </div>
   );

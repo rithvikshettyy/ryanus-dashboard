@@ -99,8 +99,8 @@ export function SidebarContent({ onNavigate }: { onNavigate?: () => void }) {
           JB
         </div>
         <div className="min-w-0 flex-1 leading-tight">
-          <p className="truncate text-sm font-medium">Jharia Block 4</p>
-          <p className="truncate text-xs text-muted-foreground">Open-cast coal mine</p>
+          <p className="truncate text-sm font-medium">Faridabad Site</p>
+          <p className="truncate text-xs text-muted-foreground">Faridabad, Haryana</p>
         </div>
       </div>
 

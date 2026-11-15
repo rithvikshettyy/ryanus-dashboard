@@ -2,6 +2,7 @@ import { currentTime, loadAlerts, SEVERITY_RANK } from "@/lib/alerts";
 import { ActiveUsers } from "./active-users";
 import { MobileNav } from "./mobile-nav";
 import { NotificationBell } from "./notification-bell";
+import { RefreshButton } from "./refresh-button";
 
 // Async server component: it loads the open alerts so the bell can show them without navigating away.
 export async function PageHeader({
@@ -26,6 +27,7 @@ export async function PageHeader({
         {subtitle && <p className="truncate text-xs text-muted-foreground md:text-sm">{subtitle}</p>}
       </div>
       {actions}
+      <RefreshButton />
       <ActiveUsers serverNow={now} />
       <NotificationBell alerts={open} serverNow={now} />
     </header>

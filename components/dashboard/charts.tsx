@@ -316,7 +316,7 @@ export function TimeSplitChart({ split }: { split: DashboardData["timeSplit"] })
         {split.map((s) => {
           const total = s.productive + s.idle + s.breakdown;
           return (
-            <li key={s.cls} className="flex items-center justify-between rounded-lg bg-muted/60 px-3 py-1.5">
+            <li key={s.cls} className="flex flex-col gap-0.5 rounded-lg bg-muted/60 px-3 py-1.5 sm:flex-row sm:items-center sm:justify-between">
               <span className="text-muted-foreground">{s.label}</span>
               <span className="num">
                 {fmtPct(total ? s.productive / total : 0)} productive · {fmtPct(total ? s.breakdown / total : 0)} breakdown

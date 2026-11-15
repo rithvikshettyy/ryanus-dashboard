@@ -27,6 +27,8 @@ function Badge({ tone, children }: { tone?: Tone; children: React.ReactNode }) {
   );
 }
 
+const MOBILE_PAGE = 12;
+
 interface Props {
   columns: TableColumn[];
   rows: TableRow[];
@@ -45,6 +47,7 @@ export function DataTable({ columns, rows, filterKey, searchPlaceholder = "Searc
   const [query, setQuery] = useState("");
   const [chip, setChip] = useState("All");
   const [sort, setSort] = useState<{ key: string; dir: "asc" | "desc" } | null>(null);
+  const [mobileLimit, setMobileLimit] = useState(MOBILE_PAGE); // phones render cards, so show them in pages
   const q = useDebounce(query, 300).trim().toLowerCase();
 
   const chips = useMemo(() => {
@@ -72,6 +75,15 @@ export function DataTable({ columns, rows, filterKey, searchPlaceholder = "Searc
     }
     return out;
   }, [rows, filterKey, chip, q, sort]);
+
+  // Back to the first page whenever the list changes (adjust state during render, no effect needed)
+  const listKey = `${q}|${chip}|${sort?.key}|${sort?.dir}`;
+  const [seenKey, setSeenKey] = useState(listKey);
+  if (listKey !== seenKey) {
+    setSeenKey(listKey);
+    setMobileLimit(MOBILE_PAGE);
+  }
+  const mobileRows = visible.slice(0, mobileLimit);
 
   const toggleSort = (key: string) =>
     setSort((s) => (s?.key !== key ? { key, dir: "asc" } : s.dir === "asc" ? { key, dir: "desc" } : null));
@@ -151,7 +163,7 @@ export function DataTable({ columns, rows, filterKey, searchPlaceholder = "Searc
         </div>
 
         {chips.length > 0 && (
-          <div className="-mx-1 flex gap-2 overflow-x-auto px-1 pb-1" role="group" aria-label="Filter">
+          <div className="no-scrollbar -mx-1 flex gap-2 overflow-x-auto px-1 pb-1" role="group" aria-label="Filter">
             {chips.map(([label, count]) => (
               <button
                 key={label}
@@ -221,7 +233,7 @@ export function DataTable({ columns, rows, filterKey, searchPlaceholder = "Searc
 
           {/* Mobile cards */}
           <ul className="divide-y md:hidden">
-            {visible.map((r) => (
+            {mobileRows.map((r) => (
               <li key={r.id} className="space-y-3 p-4">
                 <div className="flex items-start justify-between gap-3">
                   <div className="min-w-0 text-sm">{primaryCell(r)}</div>
@@ -233,15 +245,23 @@ export function DataTable({ columns, rows, filterKey, searchPlaceholder = "Searc
                 </div>
                 <dl className="grid grid-cols-2 gap-x-4 gap-y-2 text-sm">
                   {plainCols.map((c) => (
-                    <div key={c.key} className="min-w-0">
+                    // long values (routes, tasks) get the full row and wrap instead of being cut off
+                    <div key={c.key} className={cn("min-w-0", String(r[c.key] ?? "").length > 16 && "col-span-2")}>
                       <dt className="text-xs text-muted-foreground">{c.label}</dt>
-                      <dd className="truncate font-medium">{cell(r, c)}</dd>
+                      <dd className="break-words font-medium">{cell(r, c)}</dd>
                     </div>
                   ))}
                 </dl>
               </li>
             ))}
           </ul>
+          {visible.length > mobileLimit && (
+            <div className="border-t p-3 md:hidden">
+              <Button variant="outline" className="h-11 w-full" onClick={() => setMobileLimit((n) => n + MOBILE_PAGE)}>
+                Show {Math.min(MOBILE_PAGE, visible.length - mobileLimit)} more ({visible.length - mobileLimit} left)
+              </Button>
+            </div>
+          )}
         </>
       )}
 

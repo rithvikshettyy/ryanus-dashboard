@@ -29,7 +29,7 @@ const SUGGESTIONS = [
 const GREETING: Message = {
   id: 0,
   from: "bot",
-  text: "Hi, I am the Ryanus support assistant. I answer from the data on this site: alerts, trucks, drivers, maintenance, shipments, fuel and the dashboard. What do you need?",
+  text: "Hi, I am the Ryanus support assistant. What do you need?",
 };
 
 /**
@@ -102,7 +102,7 @@ export function SupportChat({
 
   return (
     <Sheet open={open} onOpenChange={onOpenChange}>
-      <SheetContent side="right" className="w-full gap-0 p-0 data-[side=right]:sm:max-w-md">
+      <SheetContent side="right" className="gap-0 p-0 data-[side=right]:w-full data-[side=right]:sm:max-w-md">
         <div className="flex items-center gap-3 border-b px-4 py-3 pr-12">
           <span className="flex size-9 items-center justify-center rounded-xl bg-primary text-primary-foreground">
             <Sparkles className="size-[18px]" aria-hidden />

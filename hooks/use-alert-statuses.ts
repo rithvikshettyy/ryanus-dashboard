@@ -30,7 +30,11 @@ function subscribe(cb: () => void) {
 
 function parse(raw: string): Record<string, AlertStatus> {
   try {
-    return raw ? (JSON.parse(raw) as Record<string, AlertStatus>) : {};
+    const data = raw ? (JSON.parse(raw) as Record<string, unknown>) : {};
+    // tolerate saves made by the richer format ({ s: status, ... }): keep just the status
+    return Object.fromEntries(
+      Object.entries(data).map(([id, v]) => [id, (typeof v === "string" ? v : (v as { s: AlertStatus }).s) as AlertStatus]),
+    );
   } catch {
     return {};
   }

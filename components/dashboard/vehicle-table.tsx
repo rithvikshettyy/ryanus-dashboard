@@ -72,7 +72,87 @@ export function VehicleTable({ vehicles, filters }: { vehicles: VehicleRow[]; fi
           </button>
         }
       />
-      <div className="max-h-[440px] overflow-auto rounded-lg border">
+      {/* Phones: sort picker + one card per vehicle (a 6-column table does not fit in 360px) */}
+      <div className="md:hidden">
+        <div className="mb-3 flex items-center gap-2">
+          <label htmlFor="vt-sort" className="text-xs font-medium text-muted-foreground">
+            Sort by
+          </label>
+          <select
+            id="vt-sort"
+            value={sort.key}
+            onChange={(e) => setSort({ key: e.target.value as SortKey, dir: e.target.value === "id" ? "asc" : "desc" })}
+            className="h-10 min-w-0 flex-1 rounded-lg border bg-card px-3 text-sm"
+          >
+            {COLS.map((c) => (
+              <option key={c.key} value={c.key}>
+                {c.label}
+              </option>
+            ))}
+          </select>
+          <button
+            type="button"
+            onClick={() => setSort((x) => ({ ...x, dir: x.dir === "asc" ? "desc" : "asc" }))}
+            aria-label={sort.dir === "asc" ? "Ascending, tap for descending" : "Descending, tap for ascending"}
+            className="flex size-10 items-center justify-center rounded-lg border bg-card"
+          >
+            {sort.dir === "asc" ? <ArrowUp className="size-4" /> : <ArrowDown className="size-4" />}
+          </button>
+        </div>
+        {rows.length === 0 ? (
+          <p className="py-8 text-center text-sm text-muted-foreground">No flagged vehicles in this view.</p>
+        ) : (
+          <ul className="max-h-[520px] space-y-2 overflow-y-auto">
+            {rows.map((v) => (
+              <li key={v.id}>
+                <button
+                  type="button"
+                  onClick={() => focusVehicle(v.id)}
+                  aria-pressed={filters.vehicle === v.id}
+                  className={cn(
+                    "w-full rounded-xl border p-3 text-left transition-colors hover:bg-muted/60",
+                    filters.vehicle === v.id && "border-primary bg-primary-soft",
+                  )}
+                >
+                  <span className="flex items-center gap-2 text-sm font-semibold">
+                    <span className="size-2.5 shrink-0 rounded-full" style={{ background: CLASS_CONFIG[v.cls].color }} aria-hidden />
+                    {v.id}
+                  </span>
+                  <span className="mt-2 grid grid-cols-4 gap-2 text-xs">
+                    {[
+                      ["Trips", fmt0(v.trips)],
+                      ["Payload", `${fmt0(v.payloadT)} t`],
+                      ["Fuel", `${fmt2(v.fuelPerTonne)} L/t`],
+                      ["Util.", fmtPct(v.utilisation)],
+                    ].map(([k, val]) => (
+                      <span key={k}>
+                        <span className="block text-muted-foreground">{k}</span>
+                        <span className="num block text-[13px] font-semibold">{val}</span>
+                      </span>
+                    ))}
+                  </span>
+                  {(v.lowUtilisation || v.highFuel) && (
+                    <span className="mt-2 flex flex-wrap gap-1.5">
+                      {v.lowUtilisation && (
+                        <span className="inline-flex items-center gap-1 rounded-md bg-warn-bg px-2 py-0.5 text-xs font-medium text-warn">
+                          <TrendingDown className="size-3" aria-hidden /> Low utilisation
+                        </span>
+                      )}
+                      {v.highFuel && (
+                        <span className="inline-flex items-center gap-1 rounded-md bg-bad-bg px-2 py-0.5 text-xs font-medium text-bad">
+                          <Flame className="size-3" aria-hidden /> High fuel/t
+                        </span>
+                      )}
+                    </span>
+                  )}
+                </button>
+              </li>
+            ))}
+          </ul>
+        )}
+      </div>
+
+      <div className="hidden max-h-[440px] overflow-auto rounded-lg border md:block">
         <table className="w-full min-w-[560px] text-sm">
           <thead className="sticky top-0 bg-muted text-xs text-muted-foreground">
             <tr>
