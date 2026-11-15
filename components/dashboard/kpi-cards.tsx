@@ -6,9 +6,9 @@ import { fmt0, fmtDelta } from "@/lib/format";
 import { cn } from "@/lib/utils";
 
 const CARDS: { metricKey: MetricKey; title: string; unit: string; icon: LucideIcon }[] = [
-  { metricKey: "payloadT", title: "Total payload", unit: "t", icon: Weight },
-  { metricKey: "fuelL", title: "Total fuel", unit: "L", icon: Fuel },
-  { metricKey: "trips", title: "Total trips", unit: "trips", icon: Route },
+  { metricKey: "payloadT", title: "Material moved", unit: "t", icon: Weight },
+  { metricKey: "fuelL", title: "Fuel consumed", unit: "L", icon: Fuel },
+  { metricKey: "trips", title: "Haul trips", unit: "trips", icon: Route },
   { metricKey: "productiveH", title: "Productive hours", unit: "h", icon: Clock },
 ];
 

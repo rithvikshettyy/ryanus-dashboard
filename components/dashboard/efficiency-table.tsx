@@ -18,7 +18,7 @@ const ROWS: { key: MetricKey; label: string; format: (n: number) => string }[] =
 export function EfficiencyTable({ summaries }: { summaries: ClassSummary[] }) {
   return (
     <Panel className="flex flex-col">
-      <PanelHeader icon={Gauge} title="Efficiency head-to-head" description="Ratios are computed from totals. Green marks the better class." />
+      <PanelHeader icon={Gauge} title="Efficiency scorecard" description="Ratios are computed from totals. Green marks the better class." />
       <div className="-mx-1 overflow-x-auto">
         <table className="w-full min-w-[420px] text-sm">
           <thead>

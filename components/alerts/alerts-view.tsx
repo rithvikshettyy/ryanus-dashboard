@@ -1,42 +1,45 @@
 "use client";
 
-import { useCallback, useMemo, useReducer, useState } from "react";
+import { useCallback, useMemo, useState } from "react";
+import { useRouter } from "next/navigation";
 import { ShieldCheck, SearchX } from "lucide-react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Panel } from "@/components/ui/panel";
 import { useDebounce } from "@/hooks/use-debounce";
+import { applyStatuses, useAlertStatuses } from "@/hooks/use-alert-statuses";
 import { useNow } from "@/hooks/use-now";
 import {
   DEFAULT_ALERT_FILTERS, filterAlerts, matchesStatus, sortAlerts, type AlertFilters, type StatusFilter,
 } from "@/lib/alert-filters";
-import type { Alert, AlertStatus } from "@/lib/types";
+import type { Alert } from "@/lib/types";
 import { AlertCard, type AlertActions } from "./alert-card";
 import { AlertFiltersBar } from "./alert-filters";
 import { AlertSheet } from "./alert-sheet";
 import { StatCards, type QuickFilter } from "./stat-cards";
 
-// useReducer: one place that lists every way alert state can change. Never mutates, always returns a new array.
-type Action =
-  | { type: "ACKNOWLEDGE"; id: string }
-  | { type: "RESOLVE"; id: string }
-  | { type: "REOPEN"; id: string }
-  | { type: "RESTORE"; id: string; status: AlertStatus };
-
-function reducer(state: Alert[], action: Action): Alert[] {
-  const set = (id: string, status: AlertStatus) => state.map((a) => (a.id === id ? { ...a, status } : a));
-  switch (action.type) {
-    case "ACKNOWLEDGE": return set(action.id, "acknowledged");
-    case "RESOLVE": return set(action.id, "resolved");
-    case "REOPEN": return set(action.id, "active");
-    case "RESTORE": return set(action.id, action.status);
-  }
-}
-
-export function AlertsView({ initialAlerts, serverNow }: { initialAlerts: Alert[]; serverNow: number }) {
-  const [alerts, dispatch] = useReducer(reducer, initialAlerts);
+export function AlertsView({
+  initialAlerts,
+  serverNow,
+  initialOpenId,
+}: {
+  initialAlerts: Alert[];
+  serverNow: number;
+  initialOpenId: string | null;
+}) {
+  const router = useRouter();
+  // Status changes live in a shared store (not local state) so the sidebar badge and bell update too.
+  const { overrides, setStatus } = useAlertStatuses();
+  const alerts = useMemo(() => applyStatuses(initialAlerts, overrides), [initialAlerts, overrides]);
   const [filters, setFilters] = useState<AlertFilters>(DEFAULT_ALERT_FILTERS);
-  const [selectedId, setSelectedId] = useState<string | null>(null);
+  const [selectedId, setSelectedId] = useState<string | null>(initialOpenId);
+  // A notification link (?open=id) can arrive while this page is already mounted.
+  // Adjusting state during render (instead of in an effect) is React's recommended pattern for that.
+  const [seenOpenId, setSeenOpenId] = useState(initialOpenId);
+  if (initialOpenId !== seenOpenId) {
+    setSeenOpenId(initialOpenId);
+    if (initialOpenId) setSelectedId(initialOpenId);
+  }
   const now = useNow(serverNow);
 
   // Debounce: filtering waits 300ms after the last keystroke instead of running on every key.
@@ -65,17 +68,17 @@ export function AlertsView({ initialAlerts, serverNow }: { initialAlerts: Alert[
   }
 
   const actions: AlertActions = {
-    onAcknowledge: (a) => update(a, { type: "ACKNOWLEDGE", id: a.id }, "acknowledged"),
-    onResolve: (a) => update(a, { type: "RESOLVE", id: a.id }, "resolved"),
-    onReopen: (a) => update(a, { type: "REOPEN", id: a.id }, "reopened"),
+    onAcknowledge: (a) => update(a, "acknowledged", "acknowledged"),
+    onResolve: (a) => update(a, "resolved", "resolved"),
+    onReopen: (a) => update(a, "active", "reopened"),
     onOpen: (a) => setSelectedId(a.id),
   };
 
-  function update(a: Alert, action: Action, verb: string) {
+  function update(a: Alert, status: Alert["status"], verb: string) {
     const previous = a.status;
-    dispatch(action);
+    setStatus(a.id, status);
     toast.success(`${a.equipmentName} ${a.title} ${verb}`, {
-      action: { label: "Undo", onClick: () => dispatch({ type: "RESTORE", id: a.id, status: previous }) },
+      action: { label: "Undo", onClick: () => setStatus(a.id, previous) },
     });
   }
 
@@ -131,7 +134,11 @@ export function AlertsView({ initialAlerts, serverNow }: { initialAlerts: Alert[
         related={related}
         now={now}
         actions={actions}
-        onClose={() => setSelectedId(null)}
+        onClose={() => {
+          setSelectedId(null);
+          // clear ?open=… so the same notification can be opened again later
+          if (initialOpenId) router.replace("/alerts", { scroll: false });
+        }}
         onSelect={(a) => setSelectedId(a.id)}
       />
     </div>

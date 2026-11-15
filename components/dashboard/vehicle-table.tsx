@@ -56,7 +56,7 @@ export function VehicleTable({ vehicles, filters }: { vehicles: VehicleRow[]; fi
     <Panel>
       <PanelHeader
         icon={Truck}
-        title="Vehicle breakdown"
+        title="Vehicle performance"
         description={`${vehicles.length} vehicles. ${flagged} flagged: utilisation under 75% or fuel/t 12%+ above class average. Click a column to sort, a vehicle to focus the dashboard on it.`}
         actions={
           <button

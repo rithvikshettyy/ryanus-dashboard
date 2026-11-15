@@ -1,10 +1,10 @@
-import Link from "next/link";
-import { Bell } from "lucide-react";
+import { currentTime, loadAlerts, SEVERITY_RANK } from "@/lib/alerts";
+import { ActiveUsers } from "./active-users";
 import { MobileNav } from "./mobile-nav";
+import { NotificationBell } from "./notification-bell";
 
-const CREW = ["RK", "SP", "AS"];
-
-export function PageHeader({
+// Async server component: it loads the open alerts so the bell can show them without navigating away.
+export async function PageHeader({
   title,
   subtitle,
   actions,
@@ -13,6 +13,11 @@ export function PageHeader({
   subtitle?: React.ReactNode;
   actions?: React.ReactNode;
 }) {
+  const now = currentTime();
+  const open = loadAlerts(now)
+    .filter((a) => a.status !== "resolved")
+    .sort((a, b) => SEVERITY_RANK[a.severity] - SEVERITY_RANK[b.severity] || b.createdAt - a.createdAt);
+
   return (
     <header className="sticky top-0 z-30 flex min-h-16 items-center gap-3 border-b bg-card/95 px-4 py-3 backdrop-blur md:px-8">
       <MobileNav />
@@ -21,26 +26,8 @@ export function PageHeader({
         {subtitle && <p className="truncate text-xs text-muted-foreground md:text-sm">{subtitle}</p>}
       </div>
       {actions}
-      <div className="hidden items-center sm:flex" aria-label="Operators on shift">
-        {CREW.map((c, i) => (
-          <span
-            key={c}
-            className="flex size-8 items-center justify-center rounded-full border-2 border-card bg-primary-soft text-[11px] font-semibold text-primary"
-            style={{ marginLeft: i ? -8 : 0 }}
-          >
-            {c}
-          </span>
-        ))}
-        <span className="num ml-1.5 text-xs text-muted-foreground">+30</span>
-      </div>
-      <Link
-        href="/alerts"
-        aria-label="Open alerts"
-        className="relative flex size-10 items-center justify-center rounded-lg border bg-card text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
-      >
-        <Bell className="size-[18px]" />
-        <span className="absolute right-2.5 top-2.5 size-2 rounded-full bg-bad ring-2 ring-card" />
-      </Link>
+      <ActiveUsers serverNow={now} />
+      <NotificationBell alerts={open} serverNow={now} />
     </header>
   );
 }

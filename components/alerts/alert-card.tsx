@@ -1,6 +1,6 @@
 "use client";
 
-import { CheckCheck, ChevronRight, MapPin, RotateCcw, UserRound, Wrench } from "lucide-react";
+import { CheckCheck, ChevronRight, Clock, MapPin, RotateCcw, UserRound, Wrench } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { ALERT_TYPE_CONFIG, EQUIPMENT_CONFIG, SEVERITY_CONFIG } from "@/lib/alerts";
 import { timeAgo } from "@/lib/format";
@@ -44,6 +44,9 @@ export function AlertCard({ alert, now, actions }: { alert: Alert; now: number; 
   const Equip = EQUIPMENT_CONFIG[alert.equipmentType].icon;
   const TypeIcon = ALERT_TYPE_CONFIG[alert.type].icon;
   const resolved = alert.status === "resolved";
+  const age = now - alert.createdAt;
+  // Critical and still unacknowledged after 10 min = needs attention now
+  const overdue = alert.severity === "critical" && alert.status === "active" && age > 10 * 60_000;
 
   return (
     <article
@@ -55,12 +58,20 @@ export function AlertCard({ alert, now, actions }: { alert: Alert; now: number; 
     >
       <span className={cn("absolute inset-y-0 left-0 w-1.5", resolved ? "bg-good" : sev.stripe)} aria-hidden />
       <div className="grid gap-5 p-4 pl-6 md:p-5 md:pl-7 lg:grid-cols-[1.25fr_1fr]">
-        <div className="min-w-0 space-y-3">
+        <div className="min-w-0 space-y-2.5">
           <div className="flex flex-wrap items-center gap-2">
             <SeverityBadge severity={alert.severity} />
-            <StatusPill status={alert.status} />
-            <time className="num ml-auto text-xs text-muted-foreground" dateTime={new Date(alert.createdAt).toISOString()}>
-              {timeAgo(now - alert.createdAt)}
+            {alert.status !== "active" && <StatusPill status={alert.status} />}
+            <time
+              className={cn(
+                "num ml-auto flex items-center gap-1.5 rounded-md px-2 py-1 text-sm font-medium",
+                overdue ? "bg-bad-bg text-bad" : "text-foreground",
+              )}
+              dateTime={new Date(alert.createdAt).toISOString()}
+            >
+              <Clock className="size-4" aria-hidden />
+              {timeAgo(age)}
+              {overdue && <span className="font-semibold">· Overdue</span>}
             </time>
           </div>
 

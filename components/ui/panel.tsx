@@ -36,7 +36,7 @@ export function PanelHeader({
           <Icon className="size-5" />
         </span>
       )}
-      <div className="min-w-0 flex-1">
+      <div className="min-w-[11rem] flex-1">
         <h2 className="text-base font-semibold leading-tight">{title}</h2>
         {description && <p className="mt-0.5 text-xs text-muted-foreground md:text-[13px]">{description}</p>}
       </div>

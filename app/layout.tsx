@@ -7,7 +7,7 @@ const geistSans = Geist({ variable: "--font-geist-sans", subsets: ["latin"] });
 const geistMono = Geist_Mono({ variable: "--font-geist-mono", subsets: ["latin"] });
 
 export const metadata: Metadata = {
-  title: { default: "MineOps", template: "%s · MineOps" },
+  title: { default: "Ryanus Mining", template: "%s · Ryanus Mining" },
   description: "Mining operations analytics and alerts platform",
 };
 

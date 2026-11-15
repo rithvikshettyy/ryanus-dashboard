@@ -11,8 +11,8 @@ const TONE = {
 
 export function Insights({ insights }: { insights: Insight[] }) {
   return (
-    <section aria-label="Key insights">
-      <h2 className="mb-3 text-sm font-semibold text-muted-foreground">Key insights</h2>
+    <section aria-label="Highlights">
+      <h2 className="mb-3 text-sm font-semibold text-muted-foreground">Shift highlights</h2>
       <div className="grid gap-4 md:grid-cols-3">
         {insights.map((i) => {
           const t = TONE[i.tone];

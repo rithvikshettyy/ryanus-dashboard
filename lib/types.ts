@@ -3,7 +3,7 @@ export type VehicleClass = "coal-dumper" | "ob-dumper" | "heavy-dumper" | "tippe
 export type ShiftId = "A" | "B" | "C";
 
 export interface Vehicle {
-  id: string; // e.g. "CD 01"
+  id: string; // e.g. "Coal Dumper 01"
   vehicleClass: VehicleClass;
 }
 

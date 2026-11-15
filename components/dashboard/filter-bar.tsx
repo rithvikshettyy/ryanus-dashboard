@@ -9,8 +9,9 @@ import { Calendar } from "@/components/ui/calendar";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Panel } from "@/components/ui/panel";
 import { CLASS_CONFIG, ALL_CLASSES, DATA_END, DATA_START } from "@/lib/constants";
-import { DEFAULT_FILTERS, filtersToQuery, type DashboardFilters } from "@/lib/filters";
+import { defaultFilters, filtersToQuery, type DashboardFilters } from "@/lib/filters";
 import { fmtRange } from "@/lib/format";
+import { shiftDays, todayIso } from "@/lib/today";
 import type { VehicleClass } from "@/lib/types";
 import { cn } from "@/lib/utils";
 
@@ -22,11 +23,15 @@ const toDate = (iso: string) => {
 const toIso = (d: Date) =>
   `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
 
-const PRESETS = [
-  { label: "Last 2 days", from: "2026-11-13", to: "2026-11-14" },
-  { label: "Last 3 days", from: "2026-11-12", to: "2026-11-14" },
-  { label: "Full week", from: DATA_START, to: DATA_END },
-];
+function presets() {
+  const today = todayIso();
+  return [
+    { label: "Today", from: today, to: today },
+    { label: "Last 3 days", from: shiftDays(today, -2), to: today },
+    { label: "Last 7 days", from: shiftDays(today, -6), to: today },
+    { label: "Whole range", from: DATA_START, to: DATA_END },
+  ];
+}
 
 export function FilterBar({
   filters,
@@ -60,6 +65,9 @@ export function FilterBar({
   }
 
   const isDefault = filtersToQuery(filters) === "";
+  const today = todayIso();
+  const periodLabel =
+    filters.from === today && filters.to === today ? `Today · ${fmtRange(today, today)}` : fmtRange(filters.from, filters.to);
   const options = vehicles.filter((v) => filters.classes.includes(v.cls));
 
   return (
@@ -79,12 +87,12 @@ export function FilterBar({
               render={<Button variant="outline" className="h-10 w-full justify-start gap-2 px-3 text-sm sm:w-60" />}
             >
               <CalendarDays className="text-muted-foreground" />
-              <span className="num flex-1 text-left">{fmtRange(filters.from, filters.to)}</span>
+              <span className="num flex-1 text-left">{periodLabel}</span>
               <ChevronDown className="text-muted-foreground" />
             </PopoverTrigger>
             <PopoverContent align="start" className="w-[min(21rem,calc(100vw-1rem))] gap-0 p-0">
               <div className="flex flex-wrap gap-1.5 border-b p-2.5">
-                {PRESETS.map((p) => (
+                {presets().map((p) => (
                   <Button
                     key={p.label}
                     variant="outline"
@@ -182,7 +190,7 @@ export function FilterBar({
           {contextLine}
         </p>
         {pending && <Loader2 className="size-4 animate-spin text-muted-foreground" aria-label="Updating" />}
-        <Button variant="ghost" className="h-10 gap-1.5" disabled={isDefault} onClick={() => apply(DEFAULT_FILTERS)}>
+        <Button variant="ghost" className="h-10 gap-1.5" disabled={isDefault} onClick={() => apply(defaultFilters())}>
           <RotateCcw /> Reset
         </Button>
       </div>

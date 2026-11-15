@@ -1,134 +1,134 @@
 [
   {
-    "id": "CD 01",
+    "id": "Coal Dumper 01",
     "vehicleClass": "coal-dumper"
   },
   {
-    "id": "CD 02",
+    "id": "Coal Dumper 02",
     "vehicleClass": "coal-dumper"
   },
   {
-    "id": "CD 03",
+    "id": "Coal Dumper 03",
     "vehicleClass": "coal-dumper"
   },
   {
-    "id": "CD 04",
+    "id": "Coal Dumper 04",
     "vehicleClass": "coal-dumper"
   },
   {
-    "id": "CD 05",
+    "id": "Coal Dumper 05",
     "vehicleClass": "coal-dumper"
   },
   {
-    "id": "CD 06",
+    "id": "Coal Dumper 06",
     "vehicleClass": "coal-dumper"
   },
   {
-    "id": "CD 07",
+    "id": "Coal Dumper 07",
     "vehicleClass": "coal-dumper"
   },
   {
-    "id": "CD 08",
+    "id": "Coal Dumper 08",
     "vehicleClass": "coal-dumper"
   },
   {
-    "id": "OB 01",
+    "id": "OB Dumper 01",
     "vehicleClass": "ob-dumper"
   },
   {
-    "id": "OB 02",
+    "id": "OB Dumper 02",
     "vehicleClass": "ob-dumper"
   },
   {
-    "id": "OB 03",
+    "id": "OB Dumper 03",
     "vehicleClass": "ob-dumper"
   },
   {
-    "id": "OB 04",
+    "id": "OB Dumper 04",
     "vehicleClass": "ob-dumper"
   },
   {
-    "id": "OB 05",
+    "id": "OB Dumper 05",
     "vehicleClass": "ob-dumper"
   },
   {
-    "id": "OB 06",
+    "id": "OB Dumper 06",
     "vehicleClass": "ob-dumper"
   },
   {
-    "id": "OB 07",
+    "id": "OB Dumper 07",
     "vehicleClass": "ob-dumper"
   },
   {
-    "id": "OB 08",
+    "id": "OB Dumper 08",
     "vehicleClass": "ob-dumper"
   },
   {
-    "id": "OB 09",
+    "id": "OB Dumper 09",
     "vehicleClass": "ob-dumper"
   },
   {
-    "id": "OB 10",
+    "id": "OB Dumper 10",
     "vehicleClass": "ob-dumper"
   },
   {
-    "id": "HD 01",
+    "id": "Heavy Dumper 01",
     "vehicleClass": "heavy-dumper"
   },
   {
-    "id": "HD 02",
+    "id": "Heavy Dumper 02",
     "vehicleClass": "heavy-dumper"
   },
   {
-    "id": "HD 03",
+    "id": "Heavy Dumper 03",
     "vehicleClass": "heavy-dumper"
   },
   {
-    "id": "HD 04",
+    "id": "Heavy Dumper 04",
     "vehicleClass": "heavy-dumper"
   },
   {
-    "id": "CT 01",
+    "id": "Coal Tipper 01",
     "vehicleClass": "tipper"
   },
   {
-    "id": "CT 02",
+    "id": "Coal Tipper 02",
     "vehicleClass": "tipper"
   },
   {
-    "id": "CT 03",
+    "id": "Coal Tipper 03",
     "vehicleClass": "tipper"
   },
   {
-    "id": "CT 04",
+    "id": "Coal Tipper 04",
     "vehicleClass": "tipper"
   },
   {
-    "id": "CT 05",
+    "id": "Coal Tipper 05",
     "vehicleClass": "tipper"
   },
   {
-    "id": "CT 06",
+    "id": "Coal Tipper 06",
     "vehicleClass": "tipper"
   },
   {
-    "id": "AD 01",
+    "id": "ADT 01",
     "vehicleClass": "adt"
   },
   {
-    "id": "AD 02",
+    "id": "ADT 02",
     "vehicleClass": "adt"
   },
   {
-    "id": "AD 03",
+    "id": "ADT 03",
     "vehicleClass": "adt"
   },
   {
-    "id": "AD 04",
+    "id": "ADT 04",
     "vehicleClass": "adt"
   },
   {
-    "id": "AD 05",
+    "id": "ADT 05",
     "vehicleClass": "adt"
   }
 ]

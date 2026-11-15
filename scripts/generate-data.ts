@@ -27,7 +27,8 @@ const PHYSICS: Record<VehicleClass, { haulKm: number; lPerKm: number; tripsPerPr
   adt: { haulKm: 4.5, lPerKm: 3.1, tripsPerProdHour: 1.1 },
 };
 
-const DATES = ["2026-11-08", "2026-11-09", "2026-11-10", "2026-11-11", "2026-11-12", "2026-11-13", "2026-11-14"];
+// 1 Nov to 17 Nov 2026 (17 days)
+const DATES = Array.from({ length: 17 }, (_, i) => `2026-11-${String(i + 1).padStart(2, "0")}`);
 const SHIFT_IDS: ShiftId[] = ["A", "B", "C"];
 
 // 1. Vehicles. Each gets a personal "fuel factor" so some are fuel hogs (outliers for the vehicle table).
@@ -35,19 +36,19 @@ const vehicles: Vehicle[] = [];
 const fuelFactor = new Map<string, number>();
 const availability = new Map<string, number>(); // how often a vehicle is working
 for (const cls of ALL_CLASSES) {
-  const { prefix, count } = CLASS_CONFIG[cls];
+  const { label, count } = CLASS_CONFIG[cls];
   for (let i = 1; i <= count; i++) {
-    const id = `${prefix} ${String(i).padStart(2, "0")}`; // e.g. "CT 02"
+    const id = `${label} ${String(i).padStart(2, "0")}`; // e.g. "Coal Tipper 02"
     vehicles.push({ id, vehicleClass: cls });
     fuelFactor.set(id, between(0.92, 1.1));
     availability.set(id, between(0.7, 0.95));
   }
 }
 // Force a couple of clear outliers
-fuelFactor.set("CD 03", 1.22);
-availability.set("OB 07", 0.62);
+fuelFactor.set("Coal Dumper 03", 1.22);
+availability.set("OB Dumper 07", 0.62);
 
-// 2. Records: 33 vehicles x 7 days x 3 shifts = 693
+// 2. Records: 33 vehicles x 17 days x 3 shifts = 1683
 const records: ShiftRecord[] = [];
 for (const v of vehicles) {
   const { capacityT } = CLASS_CONFIG[v.vehicleClass];
@@ -79,9 +80,9 @@ writeFileSync("data/vehicles.json", JSON.stringify(vehicles, null, 2));
 writeFileSync("data/shift-records.json", JSON.stringify(records));
 console.log(`vehicles: ${vehicles.length}, records: ${records.length}`);
 
-// Sanity print for 13-14 Nov, coal vs OB
+// Sanity print for today (15 Nov), coal vs OB
 for (const cls of ["coal-dumper", "ob-dumper"] as VehicleClass[]) {
-  const rows = records.filter((r) => r.vehicleClass === cls && r.date >= "2026-11-13");
+  const rows = records.filter((r) => r.vehicleClass === cls && r.date === "2026-11-15");
   const sum = (k: keyof ShiftRecord) => rows.reduce((s, r) => s + (r[k] as number), 0);
   console.log(cls, {
     trips: sum("trips"), payloadT: round(sum("payloadTonnes"), 0), km: round(sum("distanceKm"), 0),
