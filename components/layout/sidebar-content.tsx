@@ -5,7 +5,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import {
   Bell, ChevronDown, Fuel, IdCard, Languages, LayoutDashboard, LifeBuoy, ListTree, Package, PanelLeftClose, PanelLeftOpen,
-  Pickaxe, Route, Settings, Truck, Wrench, Activity, type LucideIcon,
+  Route, Settings, Truck, Wrench, Activity, type LucideIcon,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { applyStatuses, useAlertStatuses } from "@/hooks/use-alert-statuses";
@@ -113,12 +113,9 @@ export function SidebarContent({
   return (
     <div className={cn("flex h-full flex-col pb-2", collapsed ? "gap-4 px-3 py-4" : "gap-3 p-4")}>
       <div className={cn("flex pt-1", collapsed ? "flex-col items-center gap-3" : "items-center gap-2.5 px-1")}>
-        <div className={cn("flex shrink-0 items-center justify-center rounded-xl bg-primary text-primary-foreground", collapsed ? "size-11" : "size-9")}>
-          <Pickaxe className="size-5" aria-hidden />
-        </div>
         {!collapsed && (
           <div className="min-w-0 flex-1 leading-tight">
-            <p className="text-sm font-semibold">{t("GEOVIA Fleetsched")}</p>
+            <p className="whitespace-nowrap text-sm font-semibold">{t("GEOVIA Fleetsched")}</p>
             <p className="text-xs text-muted-foreground">{t("Operations console")}</p>
           </div>
         )}
