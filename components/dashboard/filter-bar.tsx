@@ -180,7 +180,7 @@ export function FilterBar({
                 aria-pressed={on}
                 onClick={() => toggleClass(cls)}
                 className={cn(
-                  "relative flex w-36 shrink-0 flex-col items-center gap-1 rounded-2xl border-2 p-2.5 text-center transition-all lg:w-auto",
+                  "relative flex w-36 shrink-0 flex-col items-center gap-1 rounded-2xl border-2 p-2.5 text-center transition-[color,background-color,border-color,box-shadow,transform,opacity] lg:w-auto",
                   on ? "border-foreground bg-card shadow-md" : "border-border bg-card/60 hover:border-foreground/40 hover:bg-card",
                 )}
               >

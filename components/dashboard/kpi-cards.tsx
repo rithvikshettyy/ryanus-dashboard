@@ -89,7 +89,7 @@ function ComparisonCard({ card, summaries, t }: { card: CardDef; summaries: Clas
             </div>
             <div className="mt-1.5 h-2 overflow-hidden rounded-full bg-muted">
               <div
-                className="h-full rounded-full transition-all"
+                className="h-full rounded-full transition-[width]"
                 style={{ width: `${(v / max) * 100}%`, background: CLASS_CONFIG[s.cls].color }}
               />
             </div>

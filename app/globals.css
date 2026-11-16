@@ -42,6 +42,7 @@
   --color-bad-bg: var(--bad-bg);
   --color-warn: var(--warn);
   --color-warn-bg: var(--warn-bg);
+  --color-warn-solid: var(--warn-solid);
   --color-info: var(--info);
   --color-info-bg: var(--info-bg);
   --color-productive: var(--productive);
@@ -90,6 +91,7 @@
   --bad-bg: #fbede6;
   --warn: #8a5a12;
   --warn-bg: #fbf1e1;
+  --warn-solid: #b7791f; /* fills and bars for warnings; distinct from the OB Dumper chart colour */
   --info: #2f4b66;
   --info-bg: #eef3f8;
 
@@ -150,3 +152,14 @@
 /* Horizontal chip rows scroll with a swipe, without a visible scrollbar */
 .no-scrollbar { scrollbar-width: none; }
 .no-scrollbar::-webkit-scrollbar { display: none; }
+
+/* Respect the OS "reduce motion" setting: no pulsing, spinning or sliding; state changes stay instant. */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+  .animate-ping, .animate-pulse { animation: none !important; }
+}

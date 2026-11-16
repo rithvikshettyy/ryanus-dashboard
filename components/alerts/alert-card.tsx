@@ -69,11 +69,10 @@ export function AlertCard({
       aria-label={t("{sev} alert: {name} {title}", { sev: t(sev.label), name: alert.equipmentName, title: alert.title })}
       className={cn(
         "relative overflow-hidden rounded-2xl border bg-card shadow-xs transition-shadow duration-200 hover:shadow-md",
-        resolved && "opacity-75",
+        resolved ? "opacity-75" : alert.severity === "critical" ? "border-bad/50" : alert.severity === "warning" ? "border-warn-solid/50" : "",
       )}
     >
-      <span className={cn("absolute inset-y-0 left-0 w-1.5", resolved ? "bg-good" : sev.stripe)} aria-hidden />
-      <div className="grid gap-5 p-4 pl-6 md:p-5 md:pl-7 lg:grid-cols-[1.25fr_1fr]">
+      <div className="grid gap-5 p-4 md:p-5 lg:grid-cols-[1.25fr_1fr]">
         <div className="min-w-0 space-y-2.5">
           <div className="flex flex-wrap items-center gap-2">
             <SeverityBadge severity={alert.severity} />
@@ -94,7 +93,7 @@ export function AlertCard({
           </div>
 
           <div className="flex items-center gap-3">
-            <span className="flex size-11 shrink-0 items-center justify-center rounded-xl border bg-card text-muted-foreground">
+            <span className={cn("flex size-11 shrink-0 items-center justify-center rounded-xl", resolved ? "bg-good-bg text-good" : cn(sev.bg, sev.text))}>
               <Equip className="size-5" aria-hidden />
             </span>
             <div className="min-w-0">
@@ -106,7 +105,7 @@ export function AlertCard({
             </div>
           </div>
 
-          <ul className="flex flex-wrap gap-x-4 gap-y-1 text-xs text-muted-foreground">
+          <ul className="flex flex-wrap gap-x-4 gap-y-1 text-[13px] text-muted-foreground">
             <li className="flex items-center gap-1.5">
               <IdCard className="size-3.5" aria-hidden /> {t(alert.fleetName)}
             </li>

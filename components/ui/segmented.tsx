@@ -30,7 +30,7 @@ export function Segmented<T extends string>({
           aria-pressed={o.value === value}
           onClick={() => onChange(o.value)}
           className={cn(
-            "flex h-10 shrink-0 sm:h-8 items-center gap-1.5 rounded-lg px-3 text-sm font-medium transition-all",
+            "flex h-10 shrink-0 sm:h-8 items-center gap-1.5 rounded-lg px-3 text-sm font-medium transition-[color,background-color,border-color,box-shadow,transform,opacity]",
             o.value === value
               ? "bg-card text-foreground shadow-sm"
               : "text-muted-foreground hover:text-foreground",

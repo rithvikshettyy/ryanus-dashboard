@@ -14,7 +14,7 @@ export async function Insights({ insights }: { insights: Insight[] }) {
   const tr = await getT();
   return (
     <section aria-label={tr("Highlights")}>
-      <h2 className="mb-3 text-sm font-semibold text-muted-foreground">{tr("Shift highlights")}</h2>
+      <h2 className="mb-3 text-base font-semibold">{tr("Shift highlights")}</h2>
       <div className="grid gap-4 md:grid-cols-3">
         {insights.map((i) => {
           const t = TONE[i.tone];

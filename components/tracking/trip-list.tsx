@@ -114,7 +114,7 @@ export function TripList({
 
                 {(t.status === "hauling" || t.status === "returning" || t.status === "no-signal") && (
                   <div className="mt-2 h-1.5 overflow-hidden rounded-full bg-muted" aria-hidden>
-                    <div className="h-full rounded-full bg-primary transition-all" style={{ width: `${t.progress * 100}%` }} />
+                    <div className="h-full rounded-full bg-primary transition-[color,background-color,border-color,box-shadow,transform,opacity]" style={{ width: `${t.progress * 100}%` }} />
                   </div>
                 )}
 

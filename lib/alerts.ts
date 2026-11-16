@@ -24,7 +24,7 @@ export const SEVERITY_CONFIG: Record<
   { label: string; icon: LucideIcon; text: string; bg: string; stripe: string; bar: string }
 > = {
   critical: { label: "Critical", icon: OctagonAlert, text: "text-bad", bg: "bg-bad-bg", stripe: "bg-bad", bar: "bg-bad" },
-  warning: { label: "Warning", icon: TriangleAlert, text: "text-warn", bg: "bg-warn-bg", stripe: "bg-[#c97a2b]", bar: "bg-[#c97a2b]" },
+  warning: { label: "Warning", icon: TriangleAlert, text: "text-warn", bg: "bg-warn-bg", stripe: "bg-warn-solid", bar: "bg-warn-solid" },
   info: { label: "Info", icon: Info, text: "text-info", bg: "bg-info-bg", stripe: "bg-info", bar: "bg-info" },
 };
 

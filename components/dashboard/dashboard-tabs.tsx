@@ -21,7 +21,7 @@ export async function DashboardTabs({ active, fleetQuery }: { active: DashboardT
           scroll={false}
           aria-current={active === tab.id ? "page" : undefined}
           className={cn(
-            "flex h-10 flex-1 items-center justify-center gap-1.5 whitespace-nowrap rounded-lg px-2 text-[13px] font-medium transition-all sm:flex-none sm:gap-2 sm:px-4 sm:text-sm",
+            "flex h-10 flex-1 items-center justify-center gap-1.5 whitespace-nowrap rounded-lg px-2 text-[13px] font-medium transition-[color,background-color,border-color,box-shadow,transform,opacity] sm:flex-none sm:gap-2 sm:px-4 sm:text-sm",
             active === tab.id ? "bg-card text-foreground shadow-sm" : "text-muted-foreground hover:text-foreground",
           )}
         >
