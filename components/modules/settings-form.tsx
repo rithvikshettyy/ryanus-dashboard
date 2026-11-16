@@ -105,7 +105,7 @@ export function SettingsForm() {
                   type="button"
                   onClick={() => setUnits(u)}
                   aria-pressed={units === u}
-                  className={cn("h-9 rounded-md px-3 text-sm font-medium capitalize", units === u ? "bg-primary text-primary-foreground" : "text-muted-foreground hover:bg-muted")}
+                  className={cn("h-10 rounded-md px-3 text-sm font-medium capitalize", units === u ? "bg-primary text-primary-foreground" : "text-muted-foreground hover:bg-muted")}
                 >
                   {t(u)}
                 </button>

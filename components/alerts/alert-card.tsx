@@ -146,10 +146,16 @@ export function AlertCard({
 
         <div className="flex flex-col justify-between gap-4 lg:border-l lg:pl-5">
           <ThresholdBar alert={alert} />
-          <div className="flex flex-wrap items-center justify-between gap-2">
+          <div className="flex items-center justify-between gap-2">
             <AlertActionButtons alert={alert} actions={actions} />
-            <Button variant="ghost" className="h-10 gap-1 px-3" onClick={() => actions.onOpen(alert)}>
-              {t("Details")} <ChevronRight />
+            {/* Icon-only on phones so Acknowledge, Resolve and Details stay on one row */}
+            <Button
+              variant="ghost"
+              className="h-10 gap-1 px-3"
+              aria-label={`${t("Details")}: ${alert.equipmentName}`}
+              onClick={() => actions.onOpen(alert)}
+            >
+              <span className="hidden sm:inline">{t("Details")}</span> <ChevronRight />
             </Button>
           </div>
         </div>

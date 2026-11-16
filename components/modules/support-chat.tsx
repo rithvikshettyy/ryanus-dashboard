@@ -146,7 +146,7 @@ export function SupportChat({
                     <Link
                       href={chunk.href}
                       onClick={() => onOpenChange(false)}
-                      className="mt-2 inline-flex h-8 items-center gap-1 rounded-md px-1 text-xs font-medium text-primary hover:underline"
+                      className="mt-2 inline-flex h-10 items-center gap-1 rounded-md px-1 text-xs font-medium text-primary hover:underline"
                     >
                       {t("Open in the app")} <ArrowUpRight className="size-3.5" aria-hidden />
                     </Link>
@@ -169,7 +169,7 @@ export function SupportChat({
                   key={s}
                   type="button"
                   onClick={() => ask(t(s))}
-                  className="min-h-9 rounded-full border px-3 py-1.5 text-left text-xs font-medium text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
+                  className="min-h-10 rounded-full border px-3 py-1.5 text-left text-xs font-medium text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
                 >
                   {t(s)}
                 </button>

@@ -175,7 +175,7 @@ export function DataTable({ columns, rows, filterKey, searchPlaceholder = "Searc
                 onClick={() => setChip(label)}
                 aria-pressed={chip === label}
                 className={cn(
-                  "flex h-9 shrink-0 items-center gap-2 rounded-full border px-3.5 text-sm font-medium transition-colors",
+                  "flex h-10 shrink-0 items-center gap-2 rounded-full border px-3.5 text-sm font-medium transition-colors",
                   chip === label ? "border-primary bg-primary-soft text-primary" : "text-muted-foreground hover:bg-muted",
                 )}
               >
@@ -236,7 +236,7 @@ export function DataTable({ columns, rows, filterKey, searchPlaceholder = "Searc
                         <button
                           type="button"
                           onClick={() => toggleSort(c.key)}
-                          className={cn("inline-flex h-8 items-center gap-1.5 rounded-md hover:text-foreground", active && "text-foreground", c.numeric && "flex-row-reverse")}
+                          className={cn("inline-flex h-10 items-center gap-1.5 rounded-md hover:text-foreground", active && "text-foreground", c.numeric && "flex-row-reverse")}
                         >
                           {t(c.label)}
                           <Icon className="size-3.5" aria-hidden />

@@ -61,7 +61,7 @@ export function LanguageSwitcher({ variant = "segmented", className }: { variant
           disabled={pending}
           onClick={() => lang !== o.value && set(o.value)}
           className={cn(
-            "flex h-9 items-center justify-center rounded-lg text-sm font-medium transition-all",
+            "flex h-10 items-center justify-center rounded-lg text-sm font-medium transition-all",
             lang === o.value ? "bg-card text-foreground shadow-sm" : "text-muted-foreground hover:text-foreground",
           )}
         >

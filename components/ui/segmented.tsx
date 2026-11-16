@@ -10,16 +10,19 @@ export function Segmented<T extends string>({
   onChange,
   label,
   className,
+  wrap = false,
 }: {
   options: { value: T; label: string; count?: number }[];
   value: T;
   onChange: (v: T) => void;
   label: string;
   className?: string;
+  /** Wrap onto a second row instead of scrolling sideways (use for tabs that must stay visible on phones). */
+  wrap?: boolean;
 }) {
   const t = useT();
   return (
-    <div role="group" aria-label={t(label)} className={cn("no-scrollbar inline-flex max-w-full gap-1 overflow-x-auto rounded-xl bg-muted p-1", className)}>
+    <div role="group" aria-label={t(label)} className={cn("no-scrollbar inline-flex max-w-full gap-1 rounded-xl bg-muted p-1", wrap ? "flex-wrap" : "overflow-x-auto", className)}>
       {options.map((o) => (
         <button
           key={o.value}

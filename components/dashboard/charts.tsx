@@ -72,14 +72,14 @@ function SeriesChart({ data, classes, type, unit, yFormat = fmt0, yWidth = 64 }:
         <AreaChart data={data} margin={margin} accessibilityLayer>
           {axes}
           {classes.map((c) => (
-            <Area key={c} dataKey={c} type="monotone" stroke={`var(--color-${c})`} fill={`var(--color-${c})`} fillOpacity={0.15} strokeWidth={2.5} />
+            <Area key={c} dataKey={c} type="monotone" stroke={`var(--color-${c})`} fill={`var(--color-${c})`} fillOpacity={0.15} strokeWidth={2.5} isAnimationActive={false} />
           ))}
         </AreaChart>
       ) : (
         <LineChart data={data} margin={margin} accessibilityLayer>
           {axes}
           {classes.map((c) => (
-            <Line key={c} dataKey={c} type="monotone" stroke={`var(--color-${c})`} strokeWidth={2.5} dot={{ r: 3 }} activeDot={{ r: 5 }} />
+            <Line key={c} dataKey={c} type="monotone" stroke={`var(--color-${c})`} strokeWidth={2.5} dot={{ r: 3 }} activeDot={{ r: 5 }} isAnimationActive={false} />
           ))}
         </LineChart>
       )}

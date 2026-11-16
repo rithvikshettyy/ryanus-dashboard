@@ -2,6 +2,10 @@
 @import "tw-animate-css";
 @import "shadcn/tailwind.css";
 
+/* The app only ships a light theme. Tailwind's default dark: variant follows the OS setting, which turned
+   outline buttons grey on dark-mode machines. Dark styles now apply only under a .dark class (none is set). */
+@custom-variant dark (&:where(.dark, .dark *));
+
 @theme inline {
   --font-sans: var(--font-geist-sans), var(--font-devanagari), ui-sans-serif, system-ui, sans-serif;
   /* One typeface site-wide: any "mono" utility also resolves to Geist, so nothing falls back to a different font */

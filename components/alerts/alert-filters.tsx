@@ -100,6 +100,7 @@ export function AlertFiltersBar({
 
       <div className="flex flex-wrap items-center justify-between gap-3 border-t pt-3">
         <Segmented
+          wrap
           label="Status"
           value={filters.status}
           onChange={(status) => onChange({ status })}

@@ -579,4 +579,6 @@ export const HI_UI: Record<string, string> = {
   "0 flagged": "0 चिह्नित",
   "All within 12% fuel/t, util 75%+": "सभी 12% ईंधन/t के भीतर, उपयोग 75%+",
   "Low util.": "कम उपयोग",
+  "Expand sidebar": "साइडबार खोलें",
+  "Collapse sidebar": "साइडबार समेटें",
 };

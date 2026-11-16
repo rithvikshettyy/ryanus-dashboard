@@ -118,7 +118,7 @@ export function NotificationBell({ alerts: seedAlerts, serverNow }: { alerts: Al
             type="button"
             disabled={unread.length === 0}
             onClick={() => markRead(alerts.map((a) => a.id))}
-            className="ml-auto flex h-8 items-center gap-1.5 rounded-md px-2 text-xs font-medium text-primary transition-colors hover:bg-primary-soft disabled:pointer-events-none disabled:text-muted-foreground"
+            className="ml-auto flex h-10 items-center gap-1.5 rounded-md px-2 text-xs font-medium text-primary transition-colors hover:bg-primary-soft disabled:pointer-events-none disabled:text-muted-foreground"
           >
             <CheckCheck className="size-3.5" aria-hidden /> {t("Mark all read")}
           </button>
@@ -134,7 +134,7 @@ export function NotificationBell({ alerts: seedAlerts, serverNow }: { alerts: Al
             <button
               type="button"
               onClick={() => void enable()}
-              className="h-9 shrink-0 rounded-md bg-primary px-3 text-xs font-semibold text-primary-foreground transition-opacity hover:opacity-90"
+              className="h-10 shrink-0 rounded-md bg-primary px-3 text-xs font-semibold text-primary-foreground transition-opacity hover:opacity-90"
             >
               {t("Enable")}
             </button>
@@ -143,7 +143,7 @@ export function NotificationBell({ alerts: seedAlerts, serverNow }: { alerts: Al
         {permission === "granted" && (
           <div className="flex items-center gap-2 border-b px-4 py-2 text-xs text-muted-foreground">
             <Check className="size-3.5 text-good" aria-hidden /> {t("Desktop alerts are on")}
-            <button type="button" onClick={sendTest} className="ml-auto h-8 rounded-md px-2 font-medium text-primary transition-colors hover:bg-primary-soft">
+            <button type="button" onClick={sendTest} className="ml-auto h-10 rounded-md px-2 font-medium text-primary transition-colors hover:bg-primary-soft">
               {t("Send test")}
             </button>
           </div>

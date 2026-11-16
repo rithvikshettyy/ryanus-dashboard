@@ -27,8 +27,8 @@ export async function Insights({ insights }: { insights: Insight[] }) {
                 <p className="text-xs text-muted-foreground">
                   {i.title} <span className="sr-only">({tr(t.label)})</span>
                 </p>
-                <p className="num mt-0.5 truncate text-xl font-semibold tracking-tight">{i.value}</p>
-                <p className="mt-0.5 line-clamp-2 text-sm text-muted-foreground">{i.body}</p>
+                <p className="num mt-0.5 text-xl font-semibold leading-tight tracking-tight break-words">{i.value}</p>
+                <p className="mt-0.5 text-sm text-muted-foreground">{i.body}</p>
               </div>
             </Panel>
           );

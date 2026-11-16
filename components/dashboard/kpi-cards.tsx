@@ -37,7 +37,7 @@ const CARDS: CardDef[] = [
 export async function KpiCards({ summaries }: { summaries: ClassSummary[] }) {
   const t = await getT();
   return (
-    <section aria-label={t("Totals")} className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
+    <section aria-label={t("Totals")} className="grid grid-cols-2 gap-3 sm:gap-4 xl:grid-cols-3">
       {CARDS.map((c) => (
         <ComparisonCard key={c.metricKey} card={c} summaries={summaries} t={t} />
       ))}
@@ -53,17 +53,18 @@ function ComparisonCard({ card, summaries, t }: { card: CardDef; summaries: Clas
   const ranked = summaries.length > 2;
 
   const rows = summaries.map((s) => ({ s, v: metricValue(s, metricKey) }));
-  if (ranked) rows.sort((a, b) => (higherBetter ? b.v - a.v : a.v - b.v));
+  // Neutral volume metrics (fuel, trips, distance) rank biggest first; only real "lower is better" ratios rank ascending.
+  if (ranked) rows.sort((a, b) => (higherBetter || neutral ? b.v - a.v : a.v - b.v));
   const max = Math.max(...rows.map((r) => r.v), 1);
   const lead = rows[0];
 
   return (
-    <Panel hover className="flex flex-col gap-4">
+    <Panel hover className="flex flex-col gap-3 p-3.5 sm:gap-4 sm:p-4 md:p-5">
       <div className="flex items-center justify-between">
         <p className="text-sm text-muted-foreground">
           {t(title)} <span className="text-xs">({t(unit)})</span>
         </p>
-        <span className="flex size-9 items-center justify-center rounded-lg border bg-card text-muted-foreground">
+        <span className="hidden size-9 items-center justify-center rounded-lg border bg-card text-muted-foreground sm:flex">
           <Icon className="size-[18px]" aria-hidden />
         </span>
       </div>
@@ -71,13 +72,18 @@ function ComparisonCard({ card, summaries, t }: { card: CardDef; summaries: Clas
       <div className="space-y-3">
         {rows.map(({ s, v }, i) => (
           <div key={s.cls}>
-            <div className="flex items-baseline justify-between gap-2">
+            <div className="flex flex-col gap-0.5 sm:flex-row sm:items-baseline sm:justify-between sm:gap-2">
               <span className="flex items-center gap-2 text-xs text-muted-foreground">
                 {ranked && <span className="num w-4 text-foreground">{i + 1}</span>}
                 <span className="size-2.5 rounded-full" style={{ background: CLASS_CONFIG[s.cls].color }} aria-hidden />
                 {s.label}
+                {secondary && (
+                  <span className="num font-normal">
+                    · {secondary.format(metricValue(s, secondary.metricKey))} {t(secondary.unit)}
+                  </span>
+                )}
               </span>
-              <span className="num text-xl font-semibold tracking-tight">
+              <span className="num text-lg sm:text-xl font-semibold tracking-tight">
                 {format(v)} <span className="text-xs font-normal text-muted-foreground">{t(unit)}</span>
               </span>
             </div>
@@ -87,11 +93,6 @@ function ComparisonCard({ card, summaries, t }: { card: CardDef; summaries: Clas
                 style={{ width: `${(v / max) * 100}%`, background: CLASS_CONFIG[s.cls].color }}
               />
             </div>
-            {secondary && (
-              <p className="num mt-1 text-right text-xs text-muted-foreground">
-                {secondary.format(metricValue(s, secondary.metricKey))} {t(secondary.unit)}
-              </p>
-            )}
           </div>
         ))}
       </div>
