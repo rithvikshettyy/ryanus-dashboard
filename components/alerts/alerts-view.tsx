@@ -2,7 +2,7 @@
 
 import { useCallback, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
-import { CheckCheck, ShieldCheck, SearchX } from "lucide-react";
+import { ShieldCheck, SearchX } from "lucide-react";
 import { toast } from "sonner";
 import { useT } from "@/components/i18n-provider";
 import { Button } from "@/components/ui/button";
@@ -17,7 +17,6 @@ import type { Alert } from "@/lib/types";
 import { AlertCard, type AlertActions } from "./alert-card";
 import { AlertFiltersBar } from "./alert-filters";
 import { AlertSheet } from "./alert-sheet";
-import { ResolveDialog, type ResolveReason } from "./resolve-dialog";
 import { StatCards, type QuickFilter } from "./stat-cards";
 
 export function AlertsView({
@@ -70,51 +69,18 @@ export function AlertsView({
     if (k === "resolved") setFilters({ ...DEFAULT_ALERT_FILTERS, status: "resolved" });
   }
 
-  // Critical alerts ask for a reason first (design rule); everything else resolves in one click.
-  const [resolving, setResolving] = useState<Alert | null>(null);
-  // Bulk acknowledge: only open Warning/Info alerts can be ticked.
-  const [picked, setPicked] = useState<Set<string>>(new Set());
-  const canBulk = (a: Alert) => a.status === "active" && a.severity !== "critical";
-  const bulkable = visible.filter(canBulk);
-  const pickedVisible = bulkable.filter((a) => picked.has(a.id));
-
-  function togglePick(a: Alert) {
-    setPicked((s) => {
-      const next = new Set(s);
-      if (next.has(a.id)) next.delete(a.id);
-      else next.add(a.id);
-      return next;
-    });
-  }
-
-  function acknowledgePicked() {
-    const list = pickedVisible;
-    list.forEach((a) => setStatus(a.id, "acknowledged"));
-    setPicked(new Set());
-    toast.success(t("{n} alerts acknowledged", { n: list.length }), {
-      duration: 5000,
-      action: { label: t("Undo"), onClick: () => list.forEach((a) => setStatus(a.id, "active")) },
-    });
-  }
-
   const actions: AlertActions = {
     onAcknowledge: (a) => update(a, "acknowledged", "acknowledged"),
-    onResolve: (a) => (a.severity === "critical" ? setResolving(a) : update(a, "resolved", "resolved")),
+    onResolve: (a) => update(a, "resolved", "resolved"),
     onReopen: (a) => update(a, "active", "reopened"),
     onOpen: (a) => setSelectedId(a.id),
   };
 
-  function update(a: Alert, status: Alert["status"], verb: string, reason?: ResolveReason) {
+  function update(a: Alert, status: Alert["status"], verb: string) {
     const previous = a.status;
     setStatus(a.id, status);
-    setPicked((s) => {
-      if (!s.has(a.id)) return s;
-      const next = new Set(s);
-      next.delete(a.id);
-      return next;
-    });
     const msg = t(`{name} {title} ${verb}`, { name: a.equipmentName, title: a.title });
-    toast.success(reason ? `${msg} · ${t(reason)}` : msg, {
+    toast.success(msg, {
       duration: 5000, // undo window
       action: { label: t("Undo"), onClick: () => setStatus(a.id, previous) },
     });
@@ -136,28 +102,6 @@ export function AlertsView({
       <p className="text-sm text-muted-foreground" aria-live="polite">
         {t("Showing {n} of {m} alerts · critical first, then newest", { n: visible.length, m: alerts.length })}
       </p>
-
-      {bulkable.length > 0 && (
-        <div className="flex flex-wrap items-center gap-2">
-          <Button
-            variant="outline"
-            className="h-10 gap-1.5"
-            onClick={() => setPicked(new Set(bulkable.map((a) => a.id)))}
-          >
-            {t("Select warnings & info ({n})", { n: bulkable.length })}
-          </Button>
-          {pickedVisible.length > 0 && (
-            <>
-              <Button className="h-10 gap-1.5" onClick={acknowledgePicked}>
-                <CheckCheck /> {t("Acknowledge {n} selected", { n: pickedVisible.length })}
-              </Button>
-              <Button variant="ghost" className="h-10" onClick={() => setPicked(new Set())}>
-                {t("Clear selection")}
-              </Button>
-            </>
-          )}
-        </div>
-      )}
 
       {visible.length === 0 ? (
         <Panel className="flex flex-col items-center gap-2 py-16 text-center">
@@ -183,26 +127,11 @@ export function AlertsView({
         <ul className="space-y-3 md:space-y-4">
           {visible.map((a) => (
             <li key={a.id}>
-              <AlertCard
-                alert={a}
-                now={now}
-                actions={actions}
-                selected={picked.has(a.id)}
-                onToggleSelect={canBulk(a) ? togglePick : undefined}
-              />
+              <AlertCard alert={a} now={now} actions={actions} />
             </li>
           ))}
         </ul>
       )}
-
-      <ResolveDialog
-        alert={resolving}
-        onCancel={() => setResolving(null)}
-        onConfirm={(a, reason) => {
-          setResolving(null);
-          update(a, "resolved", "resolved", reason);
-        }}
-      />
 
       <AlertSheet
         alert={selected}

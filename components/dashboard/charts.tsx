@@ -6,7 +6,6 @@ import { BarChart3, Clock, Fuel, PieChart as PieIcon, TrendingUp } from "lucide-
 import {
   ChartContainer, ChartLegend, ChartLegendContent, ChartTooltip, ChartTooltipContent, type ChartConfig,
 } from "@/components/ui/chart";
-import { ChartTypePicker, type ChartType } from "@/components/ui/chart-type-picker";
 import { Panel, PanelHeader } from "@/components/ui/panel";
 import { Segmented } from "@/components/ui/segmented";
 import type { DashboardData, ClassSummary } from "@/lib/analytics";
@@ -25,12 +24,12 @@ const shortLabel = (l: string) => l.replace(/^(\d+)\s+\S+\s+·\s+/, "$1·");
 const axisProps = { tickLine: false, axisLine: false, tickMargin: 8 } as const;
 
 /* ---------- Shared: one series chart drawn as line, bar or area ---------- */
-const TREND_TYPES: ChartType[] = ["line", "bar", "area"];
+type ChartType = "line" | "bar" | "area";
 
 interface SeriesProps {
   data: Record<string, number | string>[];
   classes: VehicleClass[];
-  type: Exclude<ChartType, "pie">;
+  type: ChartType;
   /** Unit shown on every Y tick, so a bare "4,200" never has to be guessed ("t", "L", "L/t"). */
   unit: string;
   yFormat?: (v: number) => string;
@@ -98,7 +97,6 @@ const TREND_META: Record<TrendMetric, { label: string; unit: string }> = {
 export function TrendChart({ data, classes }: { data: DashboardData["trend"]; classes: VehicleClass[] }) {
   const t = useT();
   const [metric, setMetric] = useState<TrendMetric>("payloadT");
-  const [type, setType] = useState<Exclude<ChartType, "pie">>("line");
   const meta = TREND_META[metric];
   return (
     <Panel className="flex flex-col">
@@ -114,11 +112,10 @@ export function TrendChart({ data, classes }: { data: DashboardData["trend"]; cl
               onChange={setMetric}
               options={(Object.keys(TREND_META) as TrendMetric[]).map((k) => ({ value: k, label: TREND_META[k].label }))}
             />
-            <ChartTypePicker value={type} onChange={(v) => v !== "pie" && setType(v)} types={TREND_TYPES} />
           </div>
         }
       />
-      <SeriesChart data={data[metric]} classes={classes} type={type} unit={meta.unit} />
+      <SeriesChart data={data[metric]} classes={classes} type="line" unit={meta.unit} />
     </Panel>
   );
 }

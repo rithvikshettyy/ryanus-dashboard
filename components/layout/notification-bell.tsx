@@ -5,7 +5,6 @@ import Link from "next/link";
 import { ArrowRight, Bell, BellOff, BellRing, Check, CheckCheck, ShieldAlert } from "lucide-react";
 import { toast } from "sonner";
 import { useT } from "@/components/i18n-provider";
-import { Button } from "@/components/ui/button";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { showDesktopNotification, useDesktopNotifications } from "@/hooks/use-desktop-notifications";
 import { applyStatuses, useAlertStatuses } from "@/hooks/use-alert-statuses";
@@ -43,45 +42,9 @@ export function NotificationBell({ alerts: seedAlerts, serverNow }: { alerts: Al
     if (result === "denied") toast.error(t("Notifications are blocked"), { description: t("Allow them from the lock icon in Chrome's address bar.") });
   }, [request, t]);
 
-  // 1) Ask once, on the first visit, with a friendly toast (the Enable button is the user click).
-  useEffect(() => {
-    if (typeof Notification === "undefined" || Notification.permission !== "default") return;
-    try {
-      if (localStorage.getItem("ryanus-notif-prompted")) return;
-      localStorage.setItem("ryanus-notif-prompted", "1");
-    } catch {
-      return;
-    }
-    // Custom toast: sonner's built-in action/cancel buttons sit beside the text and centre vertically,
-    // which looks misaligned. Here the text stacks on top and the buttons sit in their own right-aligned row.
-    toast.custom(
-      (id) => (
-        <div role="alertdialog" aria-label={t("Get desktop alerts")} className="w-[22rem] max-w-[calc(100vw-2rem)] rounded-2xl border bg-card p-4 text-card-foreground shadow-lg">
-          <p className="text-sm font-semibold">{t("Get desktop alerts")}</p>
-          <p className="mt-1 text-sm text-muted-foreground">
-            {t("Be told about critical alerts even when this tab is in the background.")}
-          </p>
-          <div className="mt-4 flex justify-end gap-2">
-            <Button variant="outline" className="h-10 px-4" onClick={() => toast.dismiss(id)}>
-              {t("Not now")}
-            </Button>
-            <Button
-              className="h-10 px-4"
-              onClick={() => {
-                toast.dismiss(id);
-                void enable();
-              }}
-            >
-              {t("Enable")}
-            </Button>
-          </div>
-        </div>
-      ),
-      { duration: 20_000 },
-    );
-  }, [enable, t]);
+  // Desktop alerts are opt-in from the bell panel (Enable button), never a popup on load.
 
-  // 2) Once allowed, show a native notification for each critical alert we have not announced yet.
+  // Once allowed, show a native notification for each critical alert we have not announced yet.
   useEffect(() => {
     if (permission !== "granted") return;
     const KEY = "ryanus-notified-alerts";

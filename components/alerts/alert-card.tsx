@@ -4,7 +4,6 @@ import { CheckCheck, ChevronRight, Clock, IdCard, MapPin, RotateCcw, UserRound, 
 import { format } from "date-fns";
 import { useT } from "@/components/i18n-provider";
 import { Button } from "@/components/ui/button";
-import { Checkbox } from "@/components/ui/checkbox";
 import { ALERT_TYPE_CONFIG, EQUIPMENT_CONFIG, SEVERITY_CONFIG } from "@/lib/alerts";
 import { timeAgo } from "@/lib/format";
 import type { Alert } from "@/lib/types";
@@ -51,15 +50,10 @@ export function AlertCard({
   alert,
   now,
   actions,
-  selected = false,
-  onToggleSelect,
 }: {
   alert: Alert;
   now: number;
   actions: AlertActions;
-  selected?: boolean;
-  /** Only passed for open Warning/Info alerts: enables the bulk-acknowledge checkbox. */
-  onToggleSelect?: (a: Alert) => void;
 }) {
   const t = useT();
   const sev = SEVERITY_CONFIG[alert.severity];
@@ -76,21 +70,12 @@ export function AlertCard({
       className={cn(
         "relative overflow-hidden rounded-2xl border bg-card shadow-xs transition-shadow duration-200 hover:shadow-md",
         resolved && "opacity-75",
-        selected && "ring-2 ring-primary/40",
       )}
     >
       <span className={cn("absolute inset-y-0 left-0 w-1.5", resolved ? "bg-good" : sev.stripe)} aria-hidden />
       <div className="grid gap-5 p-4 pl-6 md:p-5 md:pl-7 lg:grid-cols-[1.25fr_1fr]">
         <div className="min-w-0 space-y-2.5">
           <div className="flex flex-wrap items-center gap-2">
-            {onToggleSelect && (
-              <Checkbox
-                checked={selected}
-                onCheckedChange={() => onToggleSelect(alert)}
-                aria-label={t("Select {name} for bulk acknowledge", { name: alert.equipmentName })}
-                className="size-5"
-              />
-            )}
             <SeverityBadge severity={alert.severity} />
             {alert.status !== "active" && <StatusPill status={alert.status} />}
             <time
