@@ -75,7 +75,7 @@ export function NotificationBell({ alerts: seedAlerts, serverNow }: { alerts: Al
       showDesktopNotification(t("Critical: {name}", { name: a.equipmentName }), describe(a, t), { tag: a.id, href: `/alerts?open=${a.id}` }),
     );
     if (fresh.length > 3) {
-      showDesktopNotification(t("{n} more critical alerts", { n: fresh.length - 3 }), t("Open Ryanus Mining to review them."), { tag: "more-critical", href: "/alerts" });
+      showDesktopNotification(t("{n} more critical alerts", { n: fresh.length - 3 }), t("Open GEOVIA Fleetsched to review them."), { tag: "more-critical", href: "/alerts" });
     }
     try {
       localStorage.setItem(KEY, [...done, ...fresh.map((a) => a.id)].join(","));
@@ -102,7 +102,7 @@ export function NotificationBell({ alerts: seedAlerts, serverNow }: { alerts: Al
       >
         <Bell className="size-[18px]" />
         {unread.length > 0 && (
-          <span className="num absolute -right-1.5 -top-1.5 flex h-5 min-w-5 items-center justify-center rounded-full bg-bad px-1 text-[11px] font-semibold text-white ring-2 ring-card">
+          <span className="num absolute -right-1.5 -top-1.5 flex h-5 min-w-5 items-center justify-center rounded-full bg-bad px-1 text-xs font-semibold text-white ring-2 ring-card">
             {unread.length > 9 ? "9+" : unread.length}
           </span>
         )}

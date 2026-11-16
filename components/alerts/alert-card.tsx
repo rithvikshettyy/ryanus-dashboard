@@ -1,8 +1,10 @@
 "use client";
 
-import { CheckCheck, ChevronRight, Clock, MapPin, RotateCcw, UserRound, Wrench } from "lucide-react";
+import { CheckCheck, ChevronRight, Clock, IdCard, MapPin, RotateCcw, UserRound, Wrench } from "lucide-react";
+import { format } from "date-fns";
 import { useT } from "@/components/i18n-provider";
 import { Button } from "@/components/ui/button";
+import { Checkbox } from "@/components/ui/checkbox";
 import { ALERT_TYPE_CONFIG, EQUIPMENT_CONFIG, SEVERITY_CONFIG } from "@/lib/alerts";
 import { timeAgo } from "@/lib/format";
 import type { Alert } from "@/lib/types";
@@ -23,12 +25,16 @@ export function AlertActionButtons({ alert, actions, stretch = false }: { alert:
   return (
     <div className="flex flex-wrap gap-2">
       {alert.status === "active" && (
-        <Button variant="outline" className={cn("h-10 gap-1.5 px-3.5", cls)} onClick={() => actions.onAcknowledge(alert)}>
+        <Button className={cn("h-10 gap-1.5 px-3.5", cls)} onClick={() => actions.onAcknowledge(alert)}>
           <CheckCheck /> {t("Acknowledge")}
         </Button>
       )}
       {alert.status !== "resolved" && (
-        <Button className={cn("h-10 gap-1.5 px-3.5", cls)} onClick={() => actions.onResolve(alert)}>
+        <Button
+          variant={alert.status === "active" ? "outline" : "default"}
+          className={cn("h-10 gap-1.5 px-3.5", cls)}
+          onClick={() => actions.onResolve(alert)}
+        >
           {t("Resolve")}
         </Button>
       )}
@@ -41,7 +47,20 @@ export function AlertActionButtons({ alert, actions, stretch = false }: { alert:
   );
 }
 
-export function AlertCard({ alert, now, actions }: { alert: Alert; now: number; actions: AlertActions }) {
+export function AlertCard({
+  alert,
+  now,
+  actions,
+  selected = false,
+  onToggleSelect,
+}: {
+  alert: Alert;
+  now: number;
+  actions: AlertActions;
+  selected?: boolean;
+  /** Only passed for open Warning/Info alerts: enables the bulk-acknowledge checkbox. */
+  onToggleSelect?: (a: Alert) => void;
+}) {
   const t = useT();
   const sev = SEVERITY_CONFIG[alert.severity];
   const Equip = EQUIPMENT_CONFIG[alert.equipmentType].icon;
@@ -57,12 +76,21 @@ export function AlertCard({ alert, now, actions }: { alert: Alert; now: number; 
       className={cn(
         "relative overflow-hidden rounded-2xl border bg-card shadow-xs transition-shadow duration-200 hover:shadow-md",
         resolved && "opacity-75",
+        selected && "ring-2 ring-primary/40",
       )}
     >
       <span className={cn("absolute inset-y-0 left-0 w-1.5", resolved ? "bg-good" : sev.stripe)} aria-hidden />
       <div className="grid gap-5 p-4 pl-6 md:p-5 md:pl-7 lg:grid-cols-[1.25fr_1fr]">
         <div className="min-w-0 space-y-2.5">
           <div className="flex flex-wrap items-center gap-2">
+            {onToggleSelect && (
+              <Checkbox
+                checked={selected}
+                onCheckedChange={() => onToggleSelect(alert)}
+                aria-label={t("Select {name} for bulk acknowledge", { name: alert.equipmentName })}
+                className="size-5"
+              />
+            )}
             <SeverityBadge severity={alert.severity} />
             {alert.status !== "active" && <StatusPill status={alert.status} />}
             <time
@@ -71,6 +99,8 @@ export function AlertCard({ alert, now, actions }: { alert: Alert; now: number; 
                 overdue ? "bg-bad-bg text-bad" : "text-foreground",
               )}
               dateTime={new Date(alert.createdAt).toISOString()}
+              title={format(new Date(alert.createdAt), "d MMM yyyy, HH:mm:ss")} // exact time on hover
+              suppressHydrationWarning
             >
               <Clock className="size-4" aria-hidden />
               {timeAgo(age, t)}
@@ -92,6 +122,9 @@ export function AlertCard({ alert, now, actions }: { alert: Alert; now: number; 
           </div>
 
           <ul className="flex flex-wrap gap-x-4 gap-y-1 text-xs text-muted-foreground">
+            <li className="flex items-center gap-1.5">
+              <IdCard className="size-3.5" aria-hidden /> {t(alert.fleetName)}
+            </li>
             <li className="flex items-center gap-1.5">
               <MapPin className="size-3.5" aria-hidden /> {t(alert.location)}
             </li>

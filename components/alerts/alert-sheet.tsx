@@ -85,6 +85,10 @@ function Body({
         <section aria-label={t("Details")}>
           <dl className="grid grid-cols-2 gap-x-4 gap-y-3 text-sm">
             <div>
+              <dt className="text-xs text-muted-foreground">{t("Fleet unit")}</dt>
+              <dd className="font-medium">{t(alert.fleetName)}</dd>
+            </div>
+            <div>
               <dt className="text-xs text-muted-foreground">{t("Equipment type")}</dt>
               <dd className="font-medium">{t(EQUIPMENT_CONFIG[alert.equipmentType].label)}</dd>
             </div>

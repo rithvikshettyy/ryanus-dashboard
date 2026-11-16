@@ -36,7 +36,7 @@ const ll = (x: number, y: number): L.LatLngTuple => {
 const esc = (s: string) => s.replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" })[c] ?? c);
 
 function selectedIcon(t: Trip, name: string): L.DivIcon {
-  const colour = t.status === "no-signal" ? "#6b7280" : "#2f6bf0";
+  const colour = t.status === "no-signal" ? "#6b7280" : "#2a62e0";
   return L.divIcon({
     className: "truck-selected",
     iconSize: [0, 0],

@@ -84,7 +84,7 @@ export function VehicleTable({ vehicles, filters }: { vehicles: VehicleRow[]; fi
             id="vt-sort"
             value={sort.key}
             onChange={(e) => setSort({ key: e.target.value as SortKey, dir: e.target.value === "id" ? "asc" : "desc" })}
-            className="h-10 min-w-0 flex-1 rounded-lg border bg-card px-3 text-sm"
+            className="h-10 min-w-0 flex-1 rounded-lg border border-input bg-card px-3 text-sm"
           >
             {COLS.map((c) => (
               <option key={c.key} value={c.key}>
@@ -154,7 +154,7 @@ export function VehicleTable({ vehicles, filters }: { vehicles: VehicleRow[]; fi
         )}
       </div>
 
-      <div className="hidden max-h-[440px] overflow-auto rounded-lg border md:block">
+      <div className="hidden max-h-[560px] overflow-auto rounded-lg border md:block">
         <table className="w-full min-w-[560px] text-sm">
           <thead className="sticky top-0 bg-muted text-xs text-muted-foreground">
             <tr>
@@ -172,7 +172,7 @@ export function VehicleTable({ vehicles, filters }: { vehicles: VehicleRow[]; fi
                       type="button"
                       onClick={() => toggleSort(c.key)}
                       className={cn(
-                        "inline-flex min-h-10 w-full items-center gap-1 px-3 transition-colors hover:text-foreground",
+                        "inline-flex min-h-10 w-full items-center gap-1 whitespace-nowrap px-3 transition-colors hover:text-foreground",
                         c.align === "right" && "justify-end",
                         active && "text-foreground",
                       )}
@@ -209,19 +209,23 @@ export function VehicleTable({ vehicles, filters }: { vehicles: VehicleRow[]; fi
                 <td className="num px-3 py-2.5 text-right">{fmt0(v.payloadT)}</td>
                 <td className="num px-3 py-2.5 text-right">{fmt2(v.fuelPerTonne)}</td>
                 <td className="num px-3 py-2.5 text-right">{fmtPct(v.utilisation, 1)}</td>
-                <td className="px-3 py-2.5">
+                <td className="px-3 py-2.5 whitespace-nowrap">
                   <span className="flex flex-wrap gap-1.5">
                     {v.lowUtilisation && (
-                      <span className="inline-flex items-center gap-1 rounded-md bg-warn-bg px-2 py-0.5 text-xs font-medium text-warn">
-                        <TrendingDown className="size-3" aria-hidden /> {t("Low utilisation")}
+                      <span className="inline-flex items-center gap-1 rounded-md bg-warn-bg px-2 py-0.5 text-xs font-medium whitespace-nowrap text-warn">
+                        <TrendingDown className="size-3" aria-hidden /> {t("Low util.")}
                       </span>
                     )}
                     {v.highFuel && (
-                      <span className="inline-flex items-center gap-1 rounded-md bg-bad-bg px-2 py-0.5 text-xs font-medium text-bad">
+                      <span className="inline-flex items-center gap-1 rounded-md bg-bad-bg px-2 py-0.5 text-xs font-medium whitespace-nowrap text-bad">
                         <Flame className="size-3" aria-hidden /> {t("High fuel/t")}
                       </span>
                     )}
-                    {!v.lowUtilisation && !v.highFuel && <span className="text-xs text-muted-foreground">{t("None")}</span>}
+                    {!v.lowUtilisation && !v.highFuel && (
+                      <span className="text-muted-foreground" title={t("None")}>
+                        –<span className="sr-only">{t("None")}</span>
+                      </span>
+                    )}
                   </span>
                 </td>
               </tr>

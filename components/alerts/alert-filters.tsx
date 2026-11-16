@@ -11,7 +11,7 @@ import type { AlertType, EquipmentType, Severity } from "@/lib/types";
 import { cn } from "@/lib/utils";
 
 const SELECT =
-  "h-10 w-full appearance-none rounded-lg border bg-card pl-3 pr-9 text-sm transition-colors hover:bg-muted focus-visible:outline-2 focus-visible:outline-ring";
+  "h-10 w-full appearance-none rounded-lg border border-input bg-card pl-3 pr-9 text-sm transition-colors hover:bg-muted focus-visible:outline-2 focus-visible:outline-ring";
 
 export function AlertFiltersBar({
   filters,
@@ -41,7 +41,7 @@ export function AlertFiltersBar({
             onChange={(e) => onChange({ search: e.target.value })}
             placeholder={tr("Search equipment, alert, location")}
             aria-label={tr("Search alerts")}
-            className="h-10 w-full rounded-lg border bg-card pl-9 pr-3 text-sm outline-none transition-colors placeholder:text-muted-foreground hover:bg-muted/50 focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/30"
+            className="h-10 w-full rounded-lg border border-input bg-card pl-9 pr-3 text-sm outline-none transition-colors placeholder:text-muted-foreground hover:bg-muted/50 focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/30"
           />
         </div>
 

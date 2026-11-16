@@ -40,7 +40,8 @@ export interface AlertMetric {
 export interface RawAlert {
   id: string;
   equipmentId: string;
-  equipmentName: string;
+  equipmentName: string; // display name (e.g. "Truck-X")
+  fleetName: string; // fleet register unit this alert belongs to (e.g. "Coal Tipper 02")
   equipmentType: EquipmentType;
   type: AlertType;
   title: string;

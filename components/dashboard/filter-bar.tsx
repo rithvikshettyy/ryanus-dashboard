@@ -74,6 +74,7 @@ export function FilterBar({
   const options = vehicles.filter((v) => filters.classes.includes(v.cls));
 
   return (
+    <>
     <Panel aria-label={t("Filters")} className="space-y-4">
       <div className="flex flex-col gap-4 sm:flex-row sm:flex-wrap sm:items-end">
         <div className="space-y-1.5">
@@ -144,7 +145,7 @@ export function FilterBar({
               id="vehicle"
               value={filters.vehicle ?? ""}
               onChange={(e) => apply({ ...filters, vehicle: e.target.value || null })}
-              className="h-10 w-full appearance-none rounded-lg border bg-card pl-3 pr-9 text-sm transition-colors hover:bg-muted focus-visible:outline-2 focus-visible:outline-ring sm:w-44"
+              className="h-10 w-full appearance-none rounded-lg border border-input bg-card pl-3 pr-9 text-sm transition-colors hover:bg-muted focus-visible:outline-2 focus-visible:outline-ring sm:w-44"
             >
               <option value="">{t("All vehicles")}</option>
               {options.map((v) => (
@@ -186,7 +187,7 @@ export function FilterBar({
                 <span
                   className={cn(
                     "absolute right-2 top-2 flex size-5 items-center justify-center rounded-full border-2 transition-colors",
-                    on ? "border-foreground bg-foreground text-background" : "border-border bg-card",
+                    on ? "border-foreground bg-foreground text-background" : "border-input bg-card",
                   )}
                   aria-hidden
                 >
@@ -203,7 +204,7 @@ export function FilterBar({
                   <span className="size-2.5 shrink-0 rounded-full" style={{ background: cfg.color }} aria-hidden />
                   {t(cfg.label)}
                 </span>
-                <span className="num text-[11px] text-muted-foreground">
+                <span className="num text-xs text-muted-foreground">
                   {t("{n} vehicles · {c} t", { n: cfg.count, c: cfg.capacityT })}
                 </span>
               </button>
@@ -211,16 +212,18 @@ export function FilterBar({
           })}
         </div>
       </div>
-
-      <div className="flex flex-wrap items-center gap-x-3 gap-y-2 border-t pt-3">
-        <p className="min-w-0 flex-1 text-sm text-muted-foreground" aria-live="polite">
-          {contextLine}
-        </p>
-        {pending && <Loader2 className="size-4 animate-spin text-muted-foreground" aria-label={t("Updating")} />}
-        <Button variant="ghost" className="h-10 gap-1.5" disabled={isDefault} onClick={() => apply(defaultFilters())}>
-          <RotateCcw /> {t("Reset")}
-        </Button>
-      </div>
     </Panel>
+
+    {/* Context strip: sticks under the page header while scrolling, so period + classes are never out of sight */}
+    <div className="sticky top-16 z-20 -mt-2 flex flex-wrap items-center gap-x-3 gap-y-1 rounded-xl border bg-card/95 px-4 py-2 shadow-xs backdrop-blur">
+      <p className="min-w-0 flex-1 text-sm text-muted-foreground" aria-live="polite">
+        {contextLine}
+      </p>
+      {pending && <Loader2 className="size-4 animate-spin text-muted-foreground" aria-label={t("Updating")} />}
+      <Button variant="ghost" className="h-10 gap-1.5" disabled={isDefault} onClick={() => apply(defaultFilters())}>
+        <RotateCcw /> {t("Reset")}
+      </Button>
+    </div>
+    </>
   );
 }

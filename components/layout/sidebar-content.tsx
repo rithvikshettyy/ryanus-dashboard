@@ -46,7 +46,7 @@ const isActive = (pathname: string, href: string) => pathname === href || pathna
 function SectionLabel({ children }: { children: string }) {
   const t = useT();
   return (
-    <p className="px-2 pb-1 pt-3 text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">{t(children)}</p>
+    <p className="px-2 pb-1 pt-3 text-xs font-semibold uppercase tracking-wider text-muted-foreground">{t(children)}</p>
   );
 }
 
@@ -71,14 +71,14 @@ export function SidebarContent({ onNavigate }: { onNavigate?: () => void }) {
         aria-current={active ? "page" : undefined}
         className={cn(
           "flex items-center gap-3 rounded-lg text-sm font-medium transition-colors",
-          nested ? "h-9 px-2.5 text-[13px]" : "h-11 px-3 md:h-10",
+          nested ? "h-10 px-2.5 text-[13px]" : "h-11 px-3 md:h-10",
           active ? "bg-primary-soft text-primary" : "text-muted-foreground hover:bg-muted hover:text-foreground",
         )}
       >
         <Icon className={nested ? "size-4" : "size-[18px]"} aria-hidden />
         <span className="min-w-0 flex-1 truncate">{t(label)}</span>
         {badge && openCritical > 0 && (
-          <span className="num flex h-5 min-w-5 items-center justify-center rounded-md bg-bad px-1.5 text-[11px] font-semibold text-white">
+          <span className="num flex h-5 min-w-5 items-center justify-center rounded-md bg-bad px-1.5 text-xs font-semibold text-white">
             {openCritical}
           </span>
         )}
@@ -93,7 +93,7 @@ export function SidebarContent({ onNavigate }: { onNavigate?: () => void }) {
           <Pickaxe className="size-5" aria-hidden />
         </div>
         <div className="leading-tight">
-          <p className="text-[15px] font-semibold">{t("Ryanus Mining")}</p>
+          <p className="text-[15px] font-semibold">{t("GEOVIA Fleetsched")}</p>
           <p className="text-xs text-muted-foreground">{t("Operations console")}</p>
         </div>
       </div>

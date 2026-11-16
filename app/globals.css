@@ -59,7 +59,7 @@
   --card-foreground: #111827;
   --popover: #ffffff;
   --popover-foreground: #111827;
-  --primary: #2f6bf0;
+  --primary: #2a62e0;
   --primary-foreground: #ffffff;
   --primary-soft: #eaf1ff;
   --secondary: #f1f3f8;
@@ -70,15 +70,15 @@
   --accent-foreground: #111827;
   --destructive: #a33a26;
   --border: #e6e8ef;
-  --input: #dfe2ea;
-  --ring: #2f6bf0;
+  --input: #8b92a3;
+  --ring: #2a62e0;
 
   /* Vehicle classes */
   --chart-1: #2f4b66; /* Coal Dumper: slate */
-  --chart-2: #d9893b; /* OB Dumper: amber */
-  --chart-3: #6f8f7a;
-  --chart-4: #8b7fb0;
-  --chart-5: #5aa0b0;
+  --chart-2: #c97a2b; /* OB Dumper: amber */
+  --chart-3: #5f8269;
+  --chart-4: #7d70a6;
+  --chart-5: #468799;
 
   --good: #2d6e50;
   --good-bg: #e9f4ee;

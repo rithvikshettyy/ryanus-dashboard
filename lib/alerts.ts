@@ -24,7 +24,7 @@ export const SEVERITY_CONFIG: Record<
   { label: string; icon: LucideIcon; text: string; bg: string; stripe: string; bar: string }
 > = {
   critical: { label: "Critical", icon: OctagonAlert, text: "text-bad", bg: "bg-bad-bg", stripe: "bg-bad", bar: "bg-bad" },
-  warning: { label: "Warning", icon: TriangleAlert, text: "text-warn", bg: "bg-warn-bg", stripe: "bg-[#d9893b]", bar: "bg-[#d9893b]" },
+  warning: { label: "Warning", icon: TriangleAlert, text: "text-warn", bg: "bg-warn-bg", stripe: "bg-[#c97a2b]", bar: "bg-[#c97a2b]" },
   info: { label: "Info", icon: Info, text: "text-info", bg: "bg-info-bg", stripe: "bg-info", bar: "bg-info" },
 };
 
@@ -56,7 +56,7 @@ export function breachRatio(a: Alert): number | null {
 
 export function breachLabel(a: Alert, t: TFn = makeT("en")): string {
   const r = breachRatio(a);
-  if (r === null) return `${a.metric.actual} ${t(a.metric.unit)}`;
+  if (r === null) return t("Outside zone");
   const pct = Math.round(r * 100);
   if (a.type === "underload") return t("{pct}% under expected", { pct });
   return a.metric.breach === "above" ? t("+{pct}% over limit", { pct }) : t("{pct}% below minimum", { pct });

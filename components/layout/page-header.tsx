@@ -1,7 +1,5 @@
 import { currentTime, loadAlerts, SEVERITY_RANK } from "@/lib/alerts";
 import { getT } from "@/lib/i18n/server";
-import { ActiveUsers } from "./active-users";
-import { LanguageSwitcher } from "./language-switcher";
 import { MobileNav } from "./mobile-nav";
 import { NotificationBell } from "./notification-bell";
 import { RefreshButton } from "./refresh-button";
@@ -30,9 +28,7 @@ export async function PageHeader({
         {subtitle && <p className="truncate text-xs text-muted-foreground md:text-sm">{typeof subtitle === "string" ? t(subtitle) : subtitle}</p>}
       </div>
       {actions}
-      <LanguageSwitcher variant="icon" className="hidden lg:flex" />
       <RefreshButton />
-      <ActiveUsers serverNow={now} />
       <NotificationBell alerts={open} serverNow={now} />
     </header>
   );

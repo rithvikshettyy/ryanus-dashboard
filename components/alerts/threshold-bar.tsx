@@ -57,7 +57,7 @@ export function ThresholdBar({ alert, large = false }: { alert: Alert; large?: b
         </div>
       ) : (
         <p className="text-xs text-muted-foreground">
-          {limitWord} <span className="num font-medium text-foreground">{threshold} {unit}</span>
+          {limitWord} <span className="font-medium text-foreground">{t("crossed")}</span>
         </p>
       )}
     </div>

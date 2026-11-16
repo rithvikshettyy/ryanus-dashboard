@@ -117,9 +117,9 @@ function truckFlags(now: number): Record<string, TruckFlag> {
   const out: Record<string, TruckFlag> = {};
   const rank = { critical: 0, warning: 1, info: 2 } as const;
   for (const a of loadAlerts(now).filter((x) => x.status !== "resolved")) {
-    const prev = out[a.equipmentName];
+    const prev = out[a.fleetName]; // tracking list is keyed by fleet register name
     if (prev && rank[prev.severity] <= rank[a.severity]) continue;
-    out[a.equipmentName] = {
+    out[a.fleetName] = {
       severity: a.severity,
       label: a.type === "offline" ? "Offline" : `${a.title} ${a.metric.actual} ${a.metric.unit}`,
       title: a.type === "offline" ? "Offline" : a.title,

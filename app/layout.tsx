@@ -12,7 +12,7 @@ const devanagari = Noto_Sans_Devanagari({ variable: "--font-devanagari", subsets
 export async function generateMetadata(): Promise<Metadata> {
   const t = await getT();
   return {
-    title: { default: t("Ryanus Mining"), template: `%s · ${t("Ryanus Mining")}` },
+    title: { default: t("GEOVIA Fleetsched"), template: `%s · ${t("GEOVIA Fleetsched")}` },
     description: t("Mining operations analytics and alerts platform"),
   };
 }

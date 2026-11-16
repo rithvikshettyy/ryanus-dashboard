@@ -10,7 +10,7 @@ import { useNow } from "@/hooks/use-now";
 import { currentTrips } from "@/lib/tracking";
 import { ACTIVE_USERS, type ActiveUser } from "@/lib/users";
 
-function Avatar({ user, className = "size-8 text-[11px]" }: { user: ActiveUser; className?: string }) {
+function Avatar({ user, className = "size-8 text-xs" }: { user: ActiveUser; className?: string }) {
   return (
     <span
       aria-hidden
@@ -67,7 +67,7 @@ export function ActiveUsers({ serverNow }: { serverNow: number }) {
         </div>
 
         <div className="max-h-[min(28rem,65vh)] overflow-y-auto">
-          <p className="px-4 pb-1 pt-3 text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">
+          <p className="px-4 pb-1 pt-3 text-xs font-semibold uppercase tracking-wider text-muted-foreground">
             {t("Control room ({n})", { n: staff.length })}
           </p>
           <ul>
@@ -83,7 +83,7 @@ export function ActiveUsers({ serverNow }: { serverNow: number }) {
             ))}
           </ul>
 
-          <p className="px-4 pb-1 pt-3 text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">
+          <p className="px-4 pb-1 pt-3 text-xs font-semibold uppercase tracking-wider text-muted-foreground">
             {t("Operators ({n})", { n: operators.length })}
           </p>
           <ul className="pb-2">

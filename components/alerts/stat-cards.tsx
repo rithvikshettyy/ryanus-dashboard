@@ -38,11 +38,12 @@ export function StatCards({
           className={cn(
             "flex min-h-24 items-center justify-between gap-3 rounded-2xl border bg-card p-4 text-left shadow-xs transition-shadow hover:shadow-md md:p-5",
             c.on && "border-primary ring-2 ring-primary/20",
+            c.key === "critical" && c.value > 0 && !c.on && "border-bad/40",
           )}
         >
           <div>
             <p className="text-sm text-muted-foreground">{t(c.label)}</p>
-            <p className="num mt-1 text-3xl font-semibold tracking-tight">{c.value}</p>
+            <p className={cn("num mt-1 text-3xl font-semibold tracking-tight", c.key === "critical" && c.value > 0 && "text-bad")}>{c.value}</p>
           </div>
           <span className={cn("flex size-10 items-center justify-center rounded-xl", c.tone)}>
             <c.icon className="size-5" aria-hidden />

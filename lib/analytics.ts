@@ -41,6 +41,7 @@ export interface Derived {
   tonnesPerProdHour: number;
   utilisation: number; // 0..1
   fuelCost: number;
+  costPerTonne: number; // fuel cost per tonne moved (INR/t): size-neutral, unlike total cost
   breakdownShare: number; // 0..1
 }
 
@@ -53,6 +54,7 @@ export function derive(t: Totals): Derived {
     tonnesPerProdHour: safeDiv(t.payloadT, t.productiveH),
     utilisation: safeDiv(t.productiveH, total),
     fuelCost: t.fuelL * DIESEL_PRICE_PER_L,
+    costPerTonne: safeDiv(t.fuelL * DIESEL_PRICE_PER_L, t.payloadT),
     breakdownShare: safeDiv(t.breakdownH, total),
   };
 }
@@ -77,14 +79,17 @@ export interface ClassSummary {
 
 export type MetricKey =
   | "payloadT" | "fuelL" | "trips" | "distanceKm" | "productiveH"
-  | "payloadPerTrip" | "fuelPerTonne" | "fuelPerKm" | "tonnesPerProdHour" | "utilisation" | "fuelCost";
+  | "payloadPerTrip" | "fuelPerTonne" | "fuelPerKm" | "tonnesPerProdHour" | "utilisation" | "fuelCost" | "costPerTonne";
 
-/** true = a higher number is better. Drives the green/red colouring of difference pills. */
+/** true = a higher number is better. Drives the green/red colouring of difference pills (ignored for NEUTRAL_METRICS). */
 export const HIGHER_IS_BETTER: Record<MetricKey, boolean> = {
   payloadT: true, fuelL: false, trips: true, distanceKm: true, productiveH: true,
   payloadPerTrip: true, fuelPerTonne: false, fuelPerKm: false, tonnesPerProdHour: true,
-  utilisation: true, fuelCost: false,
+  utilisation: true, fuelCost: false, costPerTonne: false,
 };
+
+/** Volume metrics that depend on fleet size or workload: a bigger number is not "good" or "bad", so no green/red. */
+export const NEUTRAL_METRICS: ReadonlySet<MetricKey> = new Set<MetricKey>(["fuelL", "trips", "distanceKm", "fuelCost"]);
 
 export function metricValue(s: ClassSummary, key: MetricKey): number {
   switch (key) {
@@ -116,7 +121,8 @@ export interface VehicleRow {
 export interface Insight {
   tone: "good" | "bad" | "info";
   title: string;
-  body: string;
+  value: string; // the headline number, read first
+  body: string; // one short line of context, no paragraphs
 }
 
 export interface DashboardData {
@@ -242,9 +248,9 @@ function buildInsights(summaries: ClassSummary[], vehicles: VehicleRow[], t: TFn
       out.push({
         tone: "info",
         title: t("Payload gap"),
-        body: t("{hi} moved {gap}% more payload than {lo} ({a} t vs {b} t) on {c} vs {d} trips.", {
-          hi: hi.label, lo: lo.label, gap: (gap * 100).toFixed(0),
-          a: fmt0(hi.totals.payloadT), b: fmt0(lo.totals.payloadT), c: fmt0(hi.totals.trips), d: fmt0(lo.totals.trips),
+        value: t("+{gap}% payload", { gap: (gap * 100).toFixed(0) }),
+        body: t("{hi} {a} t vs {lo} {b} t", {
+          hi: hi.label, lo: lo.label, a: fmt0(hi.totals.payloadT), b: fmt0(lo.totals.payloadT),
         }),
       });
     }
@@ -255,8 +261,9 @@ function buildInsights(summaries: ClassSummary[], vehicles: VehicleRow[], t: TFn
       out.push({
         tone: "bad",
         title: t("Fuel efficiency"),
-        body: t("{worst} burns {gap}% more fuel per tonne than {best} ({a} vs {b} L/t).", {
-          worst: worst.label, best: best.label, gap: (gap * 100).toFixed(0),
+        value: t("+{gap}% fuel per tonne", { gap: (gap * 100).toFixed(0) }),
+        body: t("{worst} {a} vs {best} {b} L/t", {
+          worst: worst.label, best: best.label,
           a: worst.derived.fuelPerTonne.toFixed(2), b: best.derived.fuelPerTonne.toFixed(2),
         }),
       });
@@ -266,8 +273,9 @@ function buildInsights(summaries: ClassSummary[], vehicles: VehicleRow[], t: TFn
     out.push({
       tone: "info",
       title: t("Single class view"),
-      body: t("{label} moved {a} t on {b} trips at {c} L/t. Select a second class to compare.", {
-        label: s.label, a: fmt0(s.totals.payloadT), b: fmt0(s.totals.trips), c: s.derived.fuelPerTonne.toFixed(2),
+      value: t("{c} L/t", { c: s.derived.fuelPerTonne.toFixed(2) }),
+      body: t("{label} {a} t, {b} trips. Add a class to compare.", {
+        label: s.label, a: fmt0(s.totals.payloadT), b: fmt0(s.totals.trips),
       }),
     });
   }
@@ -276,18 +284,20 @@ function buildInsights(summaries: ClassSummary[], vehicles: VehicleRow[], t: TFn
   const worst = [...flagged].sort((a, b) => b.fuelPerTonne - a.fuelPerTonne)[0];
   if (worst) {
     const avg = summaries.find((s) => s.cls === worst.cls)?.derived.fuelPerTonne ?? 0;
-    const reasons = [
-      worst.highFuel && avg > 0 ? t("fuel/t is {n}% above the class average", { n: ((worst.fuelPerTonne / avg - 1) * 100).toFixed(0) }) : null,
-      worst.lowUtilisation ? t("utilisation is only {n}%", { n: fmt1(worst.utilisation * 100) }) : null,
+    // Short facts joined by dots: "fuel/t +13% · util 78.6%"
+    const facts = [
+      worst.highFuel && avg > 0 ? t("fuel/t +{n}%", { n: ((worst.fuelPerTonne / avg - 1) * 100).toFixed(0) }) : null,
+      worst.lowUtilisation ? t("util {n}%", { n: fmt1(worst.utilisation * 100) }) : null,
+      flagged.length > 1 ? t("+{n} more flagged", { n: flagged.length - 1 }) : null,
     ].filter((r): r is string => r !== null);
-    const why = reasons.length === 2 ? t("{a} and {b}", { a: reasons[0], b: reasons[1] }) : reasons[0];
     out.push({
       tone: "bad",
       title: t("Outlier to check"),
-      body: `${t(worst.id)}: ${why}. ${flagged.length > 1 ? t("{n} more vehicle(s) flagged below.", { n: flagged.length - 1 }) : t("Only flagged vehicle in this view.")}`,
+      value: t(worst.id),
+      body: facts.join(" · "),
     });
   } else if (vehicles.length) {
-    out.push({ tone: "good", title: t("No outliers"), body: t("Every vehicle is within 12% of its class fuel/t average and above 75% utilisation.") });
+    out.push({ tone: "good", title: t("No outliers"), value: t("0 flagged"), body: t("All within 12% fuel/t, util 75%+") });
   }
   return out.slice(0, 3);
 }
