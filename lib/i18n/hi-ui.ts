@@ -581,4 +581,9 @@ export const HI_UI: Record<string, string> = {
   "Low util.": "कम उपयोग",
   "Expand sidebar": "साइडबार खोलें",
   "Collapse sidebar": "साइडबार समेटें",
+  "Unsaved changes": "बिना सहेजे बदलाव",
+  "Leave without saving?": "बिना सहेजे छोड़ें?",
+  "You have unsaved changes. If you leave now they will be lost.": "आपके बदलाव सहेजे नहीं गए हैं। अभी छोड़ने पर वे खो जाएँगे।",
+  "Stay on page": "पेज पर रहें",
+  "Discard and leave": "छोड़ें और बदलाव हटाएँ",
 };

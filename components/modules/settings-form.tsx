@@ -1,12 +1,14 @@
 "use client";
 
 import { useState } from "react";
-import { Bell, Gauge, MapPin, Save } from "lucide-react";
+import { Bell, Gauge, MapPin, Save, TriangleAlert } from "lucide-react";
 import { toast } from "sonner";
 import { useT } from "@/components/i18n-provider";
 import { LanguageSwitcher } from "@/components/layout/language-switcher";
 import { Button } from "@/components/ui/button";
+import { Dialog, DialogContent, DialogDescription, DialogTitle } from "@/components/ui/dialog";
 import { Panel, PanelHeader } from "@/components/ui/panel";
+import { useUnsavedChanges } from "@/hooks/use-unsaved-changes";
 import { cn } from "@/lib/utils";
 
 const THRESHOLDS = [
@@ -47,7 +49,16 @@ export function SettingsForm() {
   const [toggles, setToggles] = useState(() => Object.fromEntries(TOGGLES.map((x) => [x.key, x.on])));
   const [units, setUnits] = useState<"metric" | "imperial">("metric");
 
-  const save = () => toast.success(t("Settings saved"));
+  // "Saved" snapshot: what the form looked like at the last save. dirty = current differs from it.
+  const snapshot = JSON.stringify({ values, toggles, units });
+  const [saved, setSaved] = useState(snapshot);
+  const dirty = snapshot !== saved;
+  const { pending, stay, leave } = useUnsavedChanges(dirty);
+
+  const save = () => {
+    setSaved(snapshot);
+    toast.success(t("Settings saved"));
+  };
 
   return (
     <div className="grid gap-4 lg:grid-cols-2">
@@ -115,11 +126,31 @@ export function SettingsForm() {
         </dl>
       </Panel>
 
-      <div className="flex items-end justify-end">
-        <Button className="h-11 w-full gap-2 sm:w-auto" onClick={save}>
+      <div className="flex flex-col items-stretch justify-end gap-2 sm:flex-row sm:items-center sm:justify-end sm:self-end">
+        {dirty && (
+          <span role="status" className="flex items-center gap-1.5 rounded-md bg-warn-bg px-2.5 py-1.5 text-sm font-medium text-warn">
+            <TriangleAlert className="size-4" aria-hidden /> {t("Unsaved changes")}
+          </span>
+        )}
+        <Button className="h-11 w-full gap-2 sm:w-auto" onClick={save} disabled={!dirty}>
           <Save className="size-4" aria-hidden /> {t("Save changes")}
         </Button>
       </div>
+
+      <Dialog open={pending !== null} onOpenChange={(o) => !o && stay()}>
+        <DialogContent>
+          <DialogTitle>{t("Leave without saving?")}</DialogTitle>
+          <DialogDescription>{t("You have unsaved changes. If you leave now they will be lost.")}</DialogDescription>
+          <div className="mt-5 flex justify-end gap-2">
+            <Button variant="outline" className="h-10" onClick={stay}>
+              {t("Stay on page")}
+            </Button>
+            <Button variant="destructive" className="h-10" onClick={leave}>
+              {t("Discard and leave")}
+            </Button>
+          </div>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
