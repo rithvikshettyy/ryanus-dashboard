@@ -1,11 +1,9 @@
-import recordsJson from "@/data/shift-records.json";
 import { CLASS_CONFIG, DIESEL_PRICE_PER_L } from "./constants";
+import { getRecords } from "./records";
 import type { DashboardFilters } from "./filters";
 import type { TFn } from "./i18n";
 import { fmt0, fmt1, fmtDate, safeDiv } from "./format";
 import type { ShiftId, ShiftRecord, VehicleClass } from "./types";
-
-const RECORDS = recordsJson as unknown as ShiftRecord[];
 
 export interface Totals {
   trips: number;
@@ -60,7 +58,7 @@ export function derive(t: Totals): Derived {
 }
 
 export function filterRecords(f: DashboardFilters): ShiftRecord[] {
-  return RECORDS.filter(
+  return getRecords().filter(
     (r) =>
       r.date >= f.from &&
       r.date <= f.to &&

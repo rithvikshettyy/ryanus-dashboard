@@ -29,8 +29,10 @@ export const SHIFTS: Record<ShiftId, { label: string; hours: string }> = {
   C: { label: "Shift C", hours: "22:00 to 06:00" },
 };
 
-export const DATA_START = "2026-11-01";
-export const DATA_END = "2026-11-17";
+// Mock data is stored as 17 days (template dates 1 to 17 Nov 2026). At load time the dates are
+// shifted so the last stored day always equals today (see lib/records.ts). The window rolls daily.
+export const DATA_DAYS = 17;
+export const TEMPLATE_END = "2026-11-17";
 // First load: today only, one class. The user picks more classes / a wider period to compare.
 export const DEFAULT_CLASSES: VehicleClass[] = ["coal-dumper"];
 export const DIESEL_PRICE_PER_L = 92; // INR, assumption (goes in README)

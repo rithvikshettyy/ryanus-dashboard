@@ -1,5 +1,5 @@
-import recordsJson from "@/data/shift-records.json";
 import { CLASS_CONFIG, CLASS_IMAGE, DIESEL_PRICE_PER_L } from "./constants";
+import { getRecords } from "./records";
 import { shiftDays, todayIso } from "./today";
 import { VEHICLES } from "./filters";
 import { fmt0, fmt1, fmt2, fmtINR } from "./format";
@@ -7,8 +7,6 @@ import { hash, type TableRow, type Tone } from "./table";
 import { currentTrips, ROUTES, SITES, type Trip, type TripStatus } from "./tracking";
 import type { ShiftRecord, VehicleClass } from "./types";
 import { ACTIVE_USERS } from "./users";
-
-const RECORDS = recordsJson as ShiftRecord[];
 
 const MODELS: Record<VehicleClass, string> = {
   "coal-dumper": "BEML BH35",
@@ -36,7 +34,7 @@ function totalsByVehicle(): Map<string, Totals> {
   const map = new Map<string, Totals>();
   const to = todayIso();
   const from = shiftDays(to, -6);
-  for (const r of RECORDS) {
+  for (const r of getRecords()) {
     if (r.date < from || r.date > to) continue;
     const t = map.get(r.vehicleId) ?? { trips: 0, payloadT: 0, fuelL: 0, distanceKm: 0, prodH: 0, idleH: 0, breakH: 0 };
     t.trips += r.trips;

@@ -1,5 +1,5 @@
 import { buildDashboard } from "./analytics";
-import { ALL_CLASSES, CLASS_CONFIG, DATA_END, DATA_START, DIESEL_PRICE_PER_L } from "./constants";
+import { ALL_CLASSES, CLASS_CONFIG, DIESEL_PRICE_PER_L } from "./constants";
 import { FAQ } from "./faq";
 import {
   activeTruckRows, activeTruckStats, driverRows, driverStats, fuelRows, fuelStats, JOBS, jobRows, jobStats, routePlans,
@@ -8,7 +8,7 @@ import {
 import { fmt0, fmt1, fmt2, fmtINR, fmtPct, fmtRange } from "./format";
 import { makeT, type Lang, type TFn } from "./i18n";
 import type { Chunk } from "./rag";
-import { shiftDays, todayIso } from "./today";
+import { dataEnd, dataStart, shiftDays, todayIso } from "./today";
 
 /**
  * Everything the support chatbot may quote, built from the same data the screens use (alerts are added in the browser).
@@ -37,7 +37,7 @@ function make(now: number, t: TFn): Chunk[] {
     ["Shipments & deliveries", "/shipments", "Shipments & deliveries shows coal and overburden movements with quantity, trucks, status, ETA and weighbridge slip.", "shipment delivery dispatch weighbridge"],
     ["Fleet management menu", "/fleet/vehicles", "Fleet management has All vehicles, Active trucks, Maintenance & repairs, Fuel & telematics, Driver directory and Route planning.", "menu sidebar navigation fleet"],
     ["Settings", "/settings", "Settings holds the alert thresholds (speed limit 30 km/h, coolant 95 °C, engine 100 °C, low fuel 15%, offline after 5 min), notification switches and units.", "threshold limit notification units configure"],
-    ["Data range and assumptions", "/dashboard", "Mock data covers {range} for 33 vehicles across 5 classes and 3 shifts (A 06-14, B 14-22, C 22-06; night shift is about 10% slower). Fuel cost uses diesel at ₹{price} per litre. An alert is shown as overdue after 10 minutes.", "data assumption diesel price shift range mock", { range: fmtRange(DATA_START, DATA_END, t), price: DIESEL_PRICE_PER_L }],
+    ["Data range and assumptions", "/dashboard", "Mock data covers {range} for 33 vehicles across 5 classes and 3 shifts (A 06-14, B 14-22, C 22-06; night shift is about 10% slower). Fuel cost uses diesel at ₹{price} per litre. An alert is shown as overdue after 10 minutes.", "data assumption diesel price shift range mock", { range: fmtRange(dataStart(), dataEnd(), t), price: DIESEL_PRICE_PER_L }],
     ["Metric definitions", "/dashboard", "Fuel per tonne = litres / tonnes. Fuel per km = litres / km. Utilisation = productive hours / scheduled hours. Payload per trip = tonnes / trips. Tonnes per productive hour = tonnes / productive hours. Ratios are computed from totals, not averaged per vehicle. Vehicles are flagged when utilisation is under 75% or fuel per tonne is 12% above the class average.", "definition formula calculate utilisation efficiency flag meaning"],
   ];
   guide.forEach(([title, href, text, keywords, params]) => add({ id: `guide-${title}`, title: t(title), text: t(text, params), href, keywords }));

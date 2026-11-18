@@ -1,6 +1,6 @@
 import vehiclesJson from "@/data/vehicles.json";
-import { ALL_CLASSES, DATA_END, DATA_START, DEFAULT_CLASSES } from "./constants";
-import { todayIso } from "./today";
+import { ALL_CLASSES, DEFAULT_CLASSES } from "./constants";
+import { dataEnd, dataStart, todayIso } from "./today";
 import type { Vehicle, VehicleClass } from "./types";
 
 export const VEHICLES = vehiclesJson as Vehicle[];
@@ -23,7 +23,7 @@ type SearchParams = Record<string, string | string[] | undefined>;
 // Type guard: narrows `string` to `VehicleClass` after the check
 const isClass = (v: string): v is VehicleClass => (ALL_CLASSES as string[]).includes(v);
 const isIsoDate = (v: string | undefined): v is string =>
-  !!v && /^\d{4}-\d{2}-\d{2}$/.test(v) && v >= DATA_START && v <= DATA_END;
+  !!v && /^\d{4}-\d{2}-\d{2}$/.test(v) && v >= dataStart() && v <= dataEnd();
 const first = (v: string | string[] | undefined) => (Array.isArray(v) ? v[0] : v);
 
 /** Anything in the URL is untrusted: validate every field and fall back to defaults. */

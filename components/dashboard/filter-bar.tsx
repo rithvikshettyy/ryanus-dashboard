@@ -10,10 +10,10 @@ import { Button } from "@/components/ui/button";
 import { Calendar } from "@/components/ui/calendar";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Panel } from "@/components/ui/panel";
-import { CLASS_CONFIG, CLASS_IMAGE, ALL_CLASSES, DATA_END, DATA_START } from "@/lib/constants";
+import { CLASS_CONFIG, CLASS_IMAGE, ALL_CLASSES } from "@/lib/constants";
 import { defaultFilters, filtersToQuery, type DashboardFilters } from "@/lib/filters";
 import { fmtRange } from "@/lib/format";
-import { shiftDays, todayIso } from "@/lib/today";
+import { dataEnd, dataStart, shiftDays, todayIso } from "@/lib/today";
 import type { VehicleClass } from "@/lib/types";
 import { cn } from "@/lib/utils";
 
@@ -31,7 +31,7 @@ function presets() {
     { label: "Today", from: today, to: today },
     { label: "Last 3 days", from: shiftDays(today, -2), to: today },
     { label: "Last 7 days", from: shiftDays(today, -6), to: today },
-    { label: "Whole range", from: DATA_START, to: DATA_END },
+    { label: "Whole range", from: dataStart(), to: dataEnd() },
   ];
 }
 
@@ -114,7 +114,7 @@ export function FilterBar({
                 mode="range"
                 defaultMonth={toDate(filters.from)}
                 selected={draft ?? { from: toDate(filters.from), to: toDate(filters.to) }}
-                disabled={{ before: toDate(DATA_START), after: toDate(DATA_END) }}
+                disabled={{ before: toDate(dataStart()), after: toDate(dataEnd()) }}
                 // Two explicit clicks: 1st = start, 2nd = end (any order, same day = single day).
                 onDayClick={(day) => {
                   if (!anchor) {
@@ -130,7 +130,7 @@ export function FilterBar({
                 }}
               />
               <p className="border-t px-3 py-2 text-xs text-muted-foreground">
-                {anchor ? t("Now pick the end date (same day for a single day).") : t("Data available {range}. Click a start date, then an end date.", { range: fmtRange(DATA_START, DATA_END, t) })}
+                {anchor ? t("Now pick the end date (same day for a single day).") : t("Data available {range}. Click a start date, then an end date.", { range: fmtRange(dataStart(), dataEnd(), t) })}
               </p>
             </PopoverContent>
           </Popover>
